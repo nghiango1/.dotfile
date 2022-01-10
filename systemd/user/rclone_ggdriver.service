@@ -1,11 +1,11 @@
 [Unit]
 Description=Google Drive (rclone)
-AssertPathIsDirectory=/home/cccn/mtn/googledriver
+AssertPathIsDirectory=/home/cccn/mnt/googledriver
 
 [Service]
 Type=simple
-ExecStart=/bin/rclone mount googledriver:rclone /home/cccn/mtn/googledriver
-ExecStop=/bin/systemd-umount -u /home/cccn/mtn/googledriver
+ExecStart=/bin/rclone mount googledriver:rclone /home/cccn/mnt/googledriver
+ExecStop=/bin/systemd-umount -u /home/cccn/mnt/googledriver
 Restart=always
 RestartSec=10
 

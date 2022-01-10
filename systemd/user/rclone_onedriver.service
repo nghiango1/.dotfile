@@ -1,11 +1,11 @@
 [Unit]
 Description=One Drive (rclone)
-AssertPathIsDirectory=/home/cccn/mtn/onedriver
+AssertPathIsDirectory=/home/cccn/mnt/onedriver
 
 [Service]
 Type=simple
-ExecStart=/bin/rclone mount onedriver: /home/cccn/mtn/onedriver
-ExecStop=/bin/systemd-umount -u /home/cccn/mtn/onedriver
+ExecStart=/bin/rclone mount onedriver: /home/cccn/mnt/onedriver
+ExecStop=/bin/systemd-umount -u /home/cccn/mnt/onedriver
 Restart=always
 RestartSec=10
 
