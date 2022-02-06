@@ -235,10 +235,10 @@ bindsym $mod+a focus parent
 ################# resize  
 
 # Resizing by 1
-bindsym $mod+Mod1+Ctrl+Right resize shrink width 1 px or 1 ppt
-bindsym $mod+Mod1+Ctrl+Up resize grow height 1 px or 1 ppt
-bindsym $mod+Mod1+Ctrl+Down resize shrink height 1 px or 1 ppt
-bindsym $mod+Mod1+Ctrl+Left resize grow width 1 px or 1 ppt
+bindsym $mod+Mod1+Ctrl+Right resize shrink width 10 px or 10 ppt
+bindsym $mod+Mod1+Ctrl+Up resize grow height 10 px or 10 ppt
+bindsym $mod+Mod1+Ctrl+Down resize shrink height 10 px or 10 ppt
+bindsym $mod+Mod1+Ctrl+Left resize grow width 10 px or 10 ppt
 
 # old resize keybindings
 # resize window (you can also use the mouse for that)
@@ -418,7 +418,7 @@ bindsym $mod+KP_Enter exec --no-startup-id xfce4-terminal;focus
 bindsym control+mod1+t exec --no-startup-id xfce4-terminal;focus
 bindsym control+mod1+Return exec --no-startup-id ;xfce4-terminal;focus
 bindsym control+mod1+KP_Enter exec --no-startup-id ;xfce4-terminal;focus
-bindsym F12 exec --no-startup-id xfce4-terminal --drop-down; focus
+# bindsym F12 exec --no-startup-id xfce4-terminal --drop-down; focus
 
 # System monitor
 bindsym control+Shift+Escape exec --no-startup-id xfce4-terminal -T 'htop task manager' -e htop;focus 
@@ -483,11 +483,11 @@ bindsym control+mod1+i exec --no-startup-id nitrogen;focus
 bindsym $mod+F6 exec --no-startup-id vlc;focus
 
 # virtual machine
-bindsym $mod+F7 exec --no-startup-id virtualbox;focus
+# bindsym $mod+F7 exec --no-startup-id virtualbox;focus
 
 # file management
 for_window [class="Thunar"] focus
-bindsym $mod+F8 exec --no-startup-id thunar;focus
+# bindsym $mod+F8 exec --no-startup-id thunar;focus
 bindsym $mod+Shift+Return exec --no-startup-id thunar;focus
 bindsym $mod+Shift+KP_Enter exec --no-startup-id thunar;focus
 bindsym control+mod1+b exec --no-startup-id thunar;focus
@@ -613,8 +613,8 @@ bindsym XF86AudioStop exec --no-startup-id playerctl stop
 
 ################# light use this after install light
 
-bindsym XF86MonBrightnessUp exec --no-startup-id light -A 5 # increase screen brightness
-bindsym XF86MonBrightnessDown exec --no-startup-id light -U 5 # decrease screen brightness
+bindsym $mod+F8 exec --no-startup-id light -A 5 # increase screen brightness
+bindsym $mod+F7 exec --no-startup-id light -U 5 # decrease screen brightness
 
 ################# bar toggle                       
 
