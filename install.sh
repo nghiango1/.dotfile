@@ -1,6 +1,6 @@
 # install stow
 
-stow linux/home/ -t /home/
+stow linux/home/ -t $HOME/
 stow linux/etc/ -t /etc/
 
 echo user_allow_other >> /etc/fuse.conf

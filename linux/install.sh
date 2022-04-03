@@ -1,2 +1,2 @@
-sudo stow home -t /home/
+sudo stow home -t $HOME/
 sudo stow etc -t /etc/

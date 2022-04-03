@@ -303,7 +303,7 @@ font pango:Noto Mono Regular 13
 # assign [class="Vmplayer|VirtualBox"]						    → 7
 
 # Workspace 8 file managers
-# assign [class="Nemo|Thunar|Caja|nautilus|Nautilus"]                                 → 8
+# assign [class="Nemo|nautilus|Caja|nautilus|Nautilus"]                                 → 8
 
 # Workspace 9 email clients
 # assign [class="Geary|Evolution"]                                                    → 9
@@ -329,7 +329,7 @@ for_window [class="Vivaldi-stable"] focus
 # exec --no-startup-id atom
 
 # File manager
-# exec --no-startup-id thunar
+# exec --no-startup-id nautilus
 
 # Mail clients
 # exec --no-startup-id evolution
@@ -346,8 +346,11 @@ for_window [class="Spotify"] focus
 # Authentication dialog
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
+# Encryption for cloud drive cryptomator
+exec --no-startup-id cryptomator
+
 # Updater
-exec --no-startup-id pamac-tray
+# exec --no-startup-id pamac-tray
 
 # bluetooth
 # exec --no-startup-id blueberry-tray
@@ -405,7 +408,7 @@ bindsym control+mod1+KP_Enter exec --no-startup-id gnome-terminal; focus
 bindsym F12 exec --no-startup-id gnome-terminal --drop-down; focus
 
 # System monitor
-bindsym control+Shift+Escape exec --no-startup-id gnome-taskmanager;focus
+# bindsym control+Shift+Escape exec --no-startup-id gnome-taskmanager;focus
 
 # settings
 bindsym control+mod1+m exec --no-startup-id gnome-settings-manager
@@ -414,7 +417,7 @@ bindsym control+mod1+m exec --no-startup-id gnome-settings-manager
 bindsym control+mod1+r exec --no-startup-id rofi-theme-selector
 
 # htop
-bindsym control+mod1+Escape exec --no-startup-id htop;focus
+bindsym control+Shift+Escape exec --no-startup-id gnome-terminal -e htop;focus
 
 # pavucontrol
 bindsym control+mod1+u exec --no-startup-id pavucontrol
@@ -427,13 +430,13 @@ bindsym --release $mod+Escape exec xkill
 
 # Function Keybinds
 # Browser
-bindsym $mod+F1 exec --no-startup-id exo-open --launch google-chrome;focus
+# bindsym $mod+F1 exec --no-startup-id gnome-open --launch webbrowser;focus
 # qwerty/azerty conflict with w
-bindsym $mod+w exec --no-startup-id exo-open --launch google-chrome;focus
+bindsym $mod+w exec --no-startup-id google-chrome;focus
 
 # Text Editor
 # bindsym $mod+F2 exec --no-startup-id geany;focus
-bindsym $mod+F2 exec --no-startup-id atom;focus
+bindsym $mod+F2 exec --no-startup-id code;focus
 
 # Basic Draw Tool
 bindsym $mod+F3 exec --no-startup-id inkscape;focus
@@ -449,14 +452,14 @@ bindsym control+mod1+i exec --no-startup-id nitrogen;focus
 bindsym $mod+F6 eXec --no-startup-id vlc;focus
 
 # virtual machine
-bindsym $mod+F7 exec --no-startup-id virtualbox;focus
+bindsym $mod+F7 exec --no-startup-id gnome-boxes;focus
 
 # file management
-for_window [class="Thunar"] focus
-bindsym $mod+F8 exec --no-startup-id thunar;focus
-bindsym $mod+Shift+Return exec --no-startup-id thunar;focus
-bindsym $mod+Shift+KP_Enter exec --no-startup-id thunar;focus
-bindsym control+mod1+b exec --no-startup-id thunar;focus
+for_window [class="nautilus"] focus
+bindsym $mod+F8 exec --no-startup-id nautilus;focus
+bindsym $mod+Shift+Return exec --no-startup-id nautilus;focus
+bindsym $mod+Shift+KP_Enter exec --no-startup-id nautilus;focus
+bindsym control+mod1+b exec --no-startup-id nautilus;focus
 
 # mail application
 bindsym $mod+F9 exec --no-startup-id evolution;focus
@@ -469,11 +472,9 @@ bindsym control+mod1+s exec --no-startup-id spotify;focus
 
 ################# screenshots                      
 
-bindsym Print exec --no-startup-id scrot 'ArcoLinux-%Y-%m-%d-%s_screenshot_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir PICTURES)'
-bindsym Control+Print exec --no-startup-id gnome-screenshooter
-bindsym Control+Shift+Print exec --no-startup-id gnome-screenshot -i
-bindsym $mod+Control+Print exec --no-startup-id flameshot gui
-# bindsym shift+Print exec --no-startup-id shutter
+# bindsym Print exec --no-startup-id scrot 'ArcoLinux-%Y-%m-%d-%s_screenshot_$wx$h.jpg' -e 'mv $f $$(xdg-user-dir PICTURES)'
+bindsym Print exec --no-startup-id gnome-screenshot;focus
+bindsym $mod+Print exec --no-startup-id gnome-screenshot --interactive;focus
 
 ################# floating or tiled rules         
 
@@ -482,8 +483,10 @@ bindsym $mod+Control+Print exec --no-startup-id flameshot gui
 for_window [class="Arcolinux-welcome-app.py"] floating enable
 # for_window [class="Arcolinux-tweak-tool.py"] floating enable
 for_window [class="Arcolinux-calamares-tool.py"] floating enable
+for_window [class="htop"] floating enable
 for_window [class="Bleachbit"] floating disable
 for_window [class="Blueberry.py"] floating enable
+for_window [class="cryptomator"] floating enable
 for_window [class="Brasero"] floating disable
 for_window [class="Galculator"] floating enable
 for_window [class="Gnome-disks"] floating disable
@@ -507,6 +510,7 @@ for_window [class="Xfburn"] floating disable
 for_window [class="gnome-appfinder"] floating enable
 for_window [class="gnome-settings-manager"] floating disable
 for_window [class="gnome-taskmanager"] floating enable
+for_window [class="gnome-screenshoot"] floating enable
 
 # for_window [instance="gimp"] floating disable
 for_window [instance="script-fu"] border normal
