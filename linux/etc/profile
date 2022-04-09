@@ -81,4 +81,5 @@ fi
 
 EDITOR=nvim
 alias ls=nnn
-export PATH=/home/ducnghiango/.local/bin:/home/ducnghiango/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/home/ducnghiango/.local/bin/
+# export PATH=/home/ducnghiango/.local/bin:/home/ducnghiango/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/home/ducnghiango/.local/bin/
+

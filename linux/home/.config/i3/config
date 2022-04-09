@@ -411,7 +411,7 @@ bindsym F12 exec --no-startup-id gnome-terminal --drop-down; focus
 # bindsym control+Shift+Escape exec --no-startup-id gnome-taskmanager;focus
 
 # settings
-bindsym control+mod1+m exec --no-startup-id gnome-settings-manager
+bindsym $mod+shift+a exec --no-startup-id gnome-control-center
 
 # rofi theme selector
 bindsym control+mod1+r exec --no-startup-id rofi-theme-selector
