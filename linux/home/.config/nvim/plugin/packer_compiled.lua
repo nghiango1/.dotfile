@@ -149,6 +149,11 @@ _G.packer_plugins = {
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/undotree",
     url = "https://github.com/mbbill/undotree"
   },
+  ["vim-dadbod"] = {
+    loaded = true,
+    path = "/home/termux/.local/share/nvim/site/pack/packer/start/vim-dadbod",
+    url = "https://github.com/tpope/vim-dadbod"
+  },
   ["vim-fugitive"] = {
     loaded = true,
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/vim-fugitive",
