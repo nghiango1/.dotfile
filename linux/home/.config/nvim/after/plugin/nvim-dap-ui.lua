@@ -67,15 +67,12 @@ local user_config = {
             size = 0.25
         } },
         position = "left",
-        size = 40
+        size = 0.25
     }, {
         elements = { {
             id = "repl",
             size = 0.5
-        }, {
-            id = "console",
-            size = 0.5
-        } },
+        }, },
         position = "bottom",
         size = 10
     } },
@@ -95,7 +92,6 @@ local user_config = {
 
 dapui.setup(user_config)
 
-vim.keymap.set("n", "<leader>dui", dapui.toggle)
 dap.listeners.after.event_initialized["dapui_config"] = function()
     vim.cmd [[set mouse=a]]
     debug_popup_map()
@@ -112,3 +108,5 @@ dap.listeners.before.event_exited["dapui_config"] = function()
     vim.cmd [[set mouse=]]
     default_popup_map()
 end
+
+

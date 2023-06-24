@@ -84,11 +84,6 @@ _G.packer_plugins = {
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/cmp-nvim-lsp",
     url = "https://github.com/hrsh7th/cmp-nvim-lsp"
   },
-  harpoon = {
-    loaded = true,
-    path = "/home/termux/.local/share/nvim/site/pack/packer/start/harpoon",
-    url = "https://github.com/theprimeagen/harpoon"
-  },
   ["hydra.nvim"] = {
     loaded = true,
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/hydra.nvim",

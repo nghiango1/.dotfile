@@ -9,7 +9,7 @@ local hint = [[
   _r_ %{rnu} relative number
 ]]
 
-OptionFunc = {}
+local OptionFunc = {}
 
 OptionFunc.mouse = function()
     if vim.o.mouse == '' then

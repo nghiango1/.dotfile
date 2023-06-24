@@ -12,8 +12,6 @@ return require('packer').startup(function(use)
     use('nvim-treesitter/playground')
     use('mbbill/undotree')
     use('tpope/vim-fugitive')
-
-    use('theprimeagen/harpoon')
     use {
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v2.x',

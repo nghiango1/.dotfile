@@ -47,7 +47,3 @@ vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/lua/ylsama/.<CR>");
 vim.keymap.set("n", "<leader><leader>", function()
     vim.cmd("so")
 end)
-
-vim.keymap.set("n", "<leader>bn", "<cmd>bn<CR>");
-vim.keymap.set("n", "<leader>bp", "<cmd>bp<CR>");
-vim.keymap.set("n", "<leader>bd", "<cmd>bd<CR>");
