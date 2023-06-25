@@ -1,26 +1,4 @@
-local dap, dapui = require("dap"), require("dapui")
-
-local default_popup_map = function()
-    vim.cmd [[aunmenu PopUp]]
-    vim.cmd [[vnoremenu PopUp.Cut                         "+x]]
-    vim.cmd [[vnoremenu PopUp.Copy                        "+y]]
-    vim.cmd [[anoremenu PopUp.Paste                       "+gP]]
-    vim.cmd [[vnoremenu PopUp.Paste                       "+P]]
-    vim.cmd [[vnoremenu PopUp.Delete                      "_x]]
-    vim.cmd [[nnoremenu PopUp.Select\ All                 ggVG]]
-    vim.cmd [[vnoremenu PopUp.Select\ All                 gg0oG$]]
-    vim.cmd [[inoremenu PopUp.Select\ All                 <C-Home><C-O>VG]]
-    vim.cmd [[anoremenu PopUp.-1-                         <Nop>]]
-    vim.cmd [[anoremenu PopUp.How-to\ disable\ mouse      <Cmd>help disable-mouse<CR>]]
-end
-
-local debug_popup_map = function()
-    vim.cmd [[aunmenu PopUp]]
-    vim.cmd [[nnoremenu PopUp.Add\ Breakpoint   <Cmd>DapToggleBreakpoint<CR>]]
-    vim.cmd [[nnoremenu PopUp.Continue          <Cmd>DapContinue<CR>]]
-    vim.cmd [[nnoremenu PopUp.Terminate         <Cmd>DapTerminate<CR>]]
-    vim.cmd [[vnoremenu PopUp.Evaluation        <Cmd>lua require("dapui").eval()<CR>]]
-end
+local dapui = require("dapui")
 
 local user_config = {
     controls = {
@@ -52,30 +30,7 @@ local user_config = {
         current_frame = "+",
         expanded = "-"
     },
-    layouts = { {
-        elements = { {
-            id = "scopes",
-            size = 0.25
-        }, {
-            id = "breakpoints",
-            size = 0.25
-        }, {
-            id = "stacks",
-            size = 0.25
-        }, {
-            id = "watches",
-            size = 0.25
-        } },
-        position = "left",
-        size = 0.25
-    }, {
-        elements = { {
-            id = "repl",
-            size = 0.5
-        }, },
-        position = "bottom",
-        size = 10
-    } },
+    layouts = {},
     mappings = {
         edit = "e",
         expand = { "<CR>", "<2-LeftMouse>" },
@@ -91,22 +46,3 @@ local user_config = {
 }
 
 dapui.setup(user_config)
-
-dap.listeners.after.event_initialized["dapui_config"] = function()
-    vim.cmd [[set mouse=a]]
-    debug_popup_map()
-end
-
-dap.listeners.before.event_terminated["dapui_config"] = function()
-    dapui.close()
-    vim.cmd [[set mouse=]]
-    default_popup_map()
-end
-
-dap.listeners.before.event_exited["dapui_config"] = function()
-    dapui.close()
-    vim.cmd [[set mouse=]]
-    default_popup_map()
-end
-
-
