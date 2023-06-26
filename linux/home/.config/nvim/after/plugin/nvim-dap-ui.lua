@@ -1,25 +1,12 @@
 local dapui = require("dapui")
 
 local user_config = {
-    controls = {
-        element = "repl",
-        enabled = true,
-        icons = {
-            disconnect = "",
-            pause = "",
-            play = "",
-            run_last = "",
-            step_back = "",
-            step_into = "",
-            step_out = "",
-            step_over = "",
-            terminate = ""
-        }
-    },
     element_mappings = {},
     expand_lines = true,
     floating = {
         border = "single",
+        position = "center",
+        enter = true,
         mappings = {
             close = { "q", "<Esc>" }
         }
@@ -30,7 +17,32 @@ local user_config = {
         current_frame = "+",
         expanded = "-"
     },
-    layouts = {},
+--   layouts = { {
+--       elements = {"scopes"},
+--       position = "left",
+--       size = 40
+--     }, {
+--       elements = {"breakpoints"},
+--       position = "left",
+--       size = 40
+--     }, {
+--         elements = {"stacks"},
+--         position = "left",
+--         size = 40
+--     }, {
+--         elements = {"watches"},
+--         position = "left",
+--         size = 40
+--     },{
+--         elements = {"repl"},
+--         position = "bottom",
+--         size = 10
+--     },{
+--         elements = {"console"},
+--         position = "left",
+--         size = 40
+--     },
+--   },
     mappings = {
         edit = "e",
         expand = { "<CR>", "<2-LeftMouse>" },

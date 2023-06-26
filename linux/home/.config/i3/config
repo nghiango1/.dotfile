@@ -209,8 +209,8 @@ bindsym $mod+Shift+n exec --no-startup-id ~/dotfiles/bin/resolution
 # bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 0 toggle # mute sound
 #
 # # Sreen brightness controls
-bindsym $mod+Shift+O exec xbacklight -inc 20 # increase screen brightness
-bindsym $mod+Shift+I exec xbacklight -dec 20 # decrease screen brightness
+bindsym $mod+Shift+O exec sudo brightnessctl set +5% # increase screen brightness
+bindsym $mod+Shift+I exec sudo brightnessctl set 5%- # decrease screen brightness
 
 # Alsa audio controls.
 bindsym $mod+Shift+comma exec ~/.config/i3/scripts/alsa restore

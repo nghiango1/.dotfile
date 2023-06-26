@@ -1,6 +1,14 @@
 vim.g.mapleader = " "
 
+function _G.t(str)
+    return vim.api.nvim_replace_termcodes(str, true, true, true)
+end
+
 vim.keymap.set("i", "<C-t>", "")
+
+vim.keymap.set("i", _G.t "<C-h>", "<C-Left>")
+vim.keymap.set("i", _G.t "<C-l>", "<C-Right>")
+
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
