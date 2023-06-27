@@ -37,18 +37,42 @@ local debug_popup_map = function()
     vim.cmd [[inoremenu PopUp.Select\ All                 <C-Home><C-O>VG]]
     vim.cmd [[anoremenu PopUp.-1-                         <Nop>]]
     vim.cmd [[nnoremenu PopUp.Add\ Breakpoint   <Cmd>DapToggleBreakpoint<CR>]]
-    vim.cmd [[nnoremenu PopUp.Show\ UI       <Cmd>DapUIToggleUI<CR>]]
+    vim.cmd [[nnoremenu PopUp.Show\ UI          <Cmd>DapUIToggleUI<CR>]]
     vim.cmd [[vnoremenu PopUp.Evaluation        <Cmd>lua require("dapui").eval()<CR>]]
-    vim.cmd [[vnoremenu PopUp.Watch2            <Cmd>DapUIAddWatch<CR>]]
+    vim.cmd [[vnoremenu PopUp.Watch             <Cmd>DapUIAddWatch<CR>]]
 end
 
 debug_popup_map()
 
 vim.keymap.set("n", "<leader>dui", dapui.toggle)
+local hint = [[
+_m_ %{modifi} Modifiable, default to no modify
+]]
+
+local OptionFunc = {}
+
+OptionFunc.modifi = function()
+    if vim.bo[0].modifiable then
+        return '[x]'
+    else
+        return '[ ]'
+    end
+end
+
 Hydra({
     name = 'Debug',
+    hint = hint,
     config = {
-        color = 'red',
+        color = 'pink',
+        invoke_on_body = true,
+        hint = {
+            border = 'rounded',
+            position = 'top',
+            funcs = OptionFunc
+        },
+        on_enter = function()
+            vim.cmd [[setlocal noma]]
+        end,
     },
     mode = { 'n' },
     body = '<leader>d',
@@ -64,6 +88,8 @@ Hydra({
         { 'l',     dap.run_last,                                   { desc = 'Run last' } },
         { 'o',     dap.repl.toggle,                                { desc = 'Repl UI' } },
         { 'J',     'viw<Cmd>lua require("dapui").eval()<CR><Esc>', { desc = 'Evaluation' } },
+        { 'm',     function() vim.cmd [[setlocal invma]] end,      { desc = 'Modifiable' } },
+        { '<Esc>', nil,                                            { exit = true } },
     }
 })
 

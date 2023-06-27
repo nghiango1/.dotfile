@@ -134,6 +134,11 @@ _G.packer_plugins = {
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/nvim-treesitter",
     url = "https://github.com/nvim-treesitter/nvim-treesitter"
   },
+  ["one-small-step-for-vimkind"] = {
+    loaded = true,
+    path = "/home/termux/.local/share/nvim/site/pack/packer/start/one-small-step-for-vimkind",
+    url = "https://github.com/jbyuki/one-small-step-for-vimkind"
+  },
   ["packer.nvim"] = {
     loaded = true,
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/packer.nvim",

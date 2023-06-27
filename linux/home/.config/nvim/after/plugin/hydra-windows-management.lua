@@ -49,6 +49,7 @@ Hydra({
         end, { exit = true, desc = 'Managing' } },
 
         { 'o', '<C-w>o', { desc = 'Focus' } },
+        { 'A', '<Cmd>ball<CR>', { desc = 'Show all buffer' } },
 
         { 's', '<C-w>s' },
         { 'v', '<C-w>v', { desc = "Split" } },
