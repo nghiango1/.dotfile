@@ -1,5 +1,7 @@
 local list_extension = {
     "tomblind.local-lua-debugger-vscode",
+    "ms-python.python",
+    "ms-vscode.js-debug-nightly",
 }
 
 local update_all_command = [[!for ext in `code --list-extensions`; do code --install-extension "$ext" --force; done]]

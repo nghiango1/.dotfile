@@ -104,11 +104,6 @@ _G.packer_plugins = {
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/mason.nvim",
     url = "https://github.com/williamboman/mason.nvim"
   },
-  ["neodev.nvim"] = {
-    loaded = true,
-    path = "/home/termux/.local/share/nvim/site/pack/packer/start/neodev.nvim",
-    url = "https://github.com/folke/neodev.nvim"
-  },
   ["nvim-cmp"] = {
     loaded = true,
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/nvim-cmp",
@@ -133,11 +128,6 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/termux/.local/share/nvim/site/pack/packer/start/nvim-treesitter",
     url = "https://github.com/nvim-treesitter/nvim-treesitter"
-  },
-  ["one-small-step-for-vimkind"] = {
-    loaded = true,
-    path = "/home/termux/.local/share/nvim/site/pack/packer/start/one-small-step-for-vimkind",
-    url = "https://github.com/jbyuki/one-small-step-for-vimkind"
   },
   ["packer.nvim"] = {
     loaded = true,
