@@ -28,9 +28,6 @@ return require('packer').startup(function(use)
         }
     }
     use('tpope/vim-dadbod')
-    use('mfussenegger/nvim-dap')
-    use('folke/neodev.nvim')
-    use { "rcarriga/nvim-dap-ui", requires = { "mfussenegger/nvim-dap" } }
     use('anuvyklack/hydra.nvim')
-    use('jbyuki/one-small-step-for-vimkind')
+    use('puremourning/vimspector')
 end)
