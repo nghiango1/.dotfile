@@ -1,6 +1,15 @@
 local lsp = require("lsp-zero")
+local lspconfig = require('lspconfig')
 
 lsp.preset("recommended")
+
+lspconfig.jdtls.setup {
+    initializationOptions = {
+        bundles = {
+            "/home/termux/.local/share/nvim/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-0.47.0.jar"
+        }
+    },
+}
 
 lsp.ensure_installed({
     'tsserver',
