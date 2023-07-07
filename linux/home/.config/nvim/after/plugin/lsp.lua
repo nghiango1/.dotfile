@@ -53,6 +53,8 @@ lsp.on_attach(function(client, bufnr)
     vim.keymap.set("i", "<C-j>", function() vim.lsp.buf.signature_help() end, opts)
 end)
 
+lsp.skip_server_setup({'jdtls'})
+
 lsp.setup()
 
 vim.diagnostic.config({
