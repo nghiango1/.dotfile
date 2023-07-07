@@ -13,97 +13,25 @@ end
 vim.api.nvim_create_user_command('DapUIAddWatch', addSelectedTextToWatch, {})
 vim.api.nvim_create_user_command('DapUIToggleUI', dapui.toggle, {})
 
-local default_popup_map = function()
-    vim.cmd [[aunmenu PopUp]]
-    vim.cmd [[vnoremenu PopUp.Cut                         "+x]]
-    vim.cmd [[vnoremenu PopUp.Copy                        "+y]]
-    vim.cmd [[anoremenu PopUp.Paste                       "+gP]]
-    vim.cmd [[vnoremenu PopUp.Paste                       "+P]]
-    vim.cmd [[vnoremenu PopUp.Delete                      "_x]]
-    vim.cmd [[nnoremenu PopUp.Select\ All                 ggVG]]
-    vim.cmd [[vnoremenu PopUp.Select\ All                 gg0oG$]]
-    vim.cmd [[inoremenu PopUp.Select\ All                 <C-Home><C-O>VG]]
-    vim.cmd [[anoremenu PopUp.-1-                         <Nop>]]
-    vim.cmd [[anoremenu PopUp.How-to\ disable\ mouse      <Cmd>help disable-mouse<CR>]]
-end
-
-local debug_popup_map = function()
-    vim.cmd [[aunmenu PopUp]]
-    vim.cmd [[vnoremenu PopUp.Copy                        "+y]]
-    vim.cmd [[anoremenu PopUp.Paste                       "+gP]]
-    vim.cmd [[vnoremenu PopUp.Paste                       "+P]]
-    vim.cmd [[nnoremenu PopUp.Select\ All                 ggVG]]
-    vim.cmd [[vnoremenu PopUp.Select\ All                 gg0oG$]]
-    vim.cmd [[inoremenu PopUp.Select\ All                 <C-Home><C-O>VG]]
-    vim.cmd [[anoremenu PopUp.-1-                         <Nop>]]
-    vim.cmd [[nnoremenu PopUp.Add\ Breakpoint   <Cmd>DapToggleBreakpoint<CR>]]
-    vim.cmd [[nnoremenu PopUp.Show\ UI          <Cmd>DapUIToggleUI<CR>]]
-    vim.cmd [[vnoremenu PopUp.Evaluation        <Cmd>lua require("dapui").eval()<CR>]]
-    vim.cmd [[vnoremenu PopUp.Watch             <Cmd>DapUIAddWatch<CR>]]
-end
-
-debug_popup_map()
+vim.cmd [[nnoremenu Debug.Add\ Breakpoint   <Cmd>DapToggleBreakpoint<CR>]]
+vim.cmd [[nnoremenu Debug.Show\ UI          <Cmd>DapUIToggleUI<CR>]]
+vim.cmd [[vnoremenu Debug.Evaluation        <Cmd>lua require("dapui").eval()<CR>]]
+vim.cmd [[vnoremenu Debug.Watch             <Cmd>DapUIAddWatch<CR>]]
 
 vim.keymap.set("n", "<leader>dui", dapui.toggle)
-local hint = [[
-_m_ %{modifi} Modifiable, default to no modify
-]]
-
-local OptionFunc = {}
-
-OptionFunc.modifi = function()
-    if vim.bo[0].modifiable then
-        return '[x]'
-    else
-        return '[ ]'
-    end
-end
-
-Hydra({
-    name = 'Debug',
-    hint = hint,
-    config = {
-        color = 'pink',
-        invoke_on_body = true,
-        hint = {
-            border = 'rounded',
-            position = 'top',
-            funcs = OptionFunc
-        },
-        on_enter = function()
-            vim.cmd [[setlocal noma]]
-        end,
-    },
-    mode = { 'n' },
-    body = '<leader>d',
-    heads = {
-        { 'b', dap.toggle_breakpoint },
-        { 'B', dap.set_breakpoint,   { desc = 'Breakpoint' } },
-        { 'p', function()
-            dap.pause()
-        end, { desc = 'Pause' } },
-        { '<F12>', dap.step_out,                                   { desc = 'Step out' } },
-        { 't',     dap.terminate,                                  { desc = 'Terminate' } },
-        { 'r',     dap.restart,                                    { desc = 'Restart' } },
-        { 'l',     dap.run_last,                                   { desc = 'Run last' } },
-        { 'o',     dap.repl.toggle,                                { desc = 'Repl UI' } },
-        { 'J',     'viw<Cmd>lua require("dapui").eval()<CR><Esc>', { desc = 'Evaluation' } },
-        { 'm',     function() vim.cmd [[setlocal invma]] end,      { desc = 'Modifiable' } },
-        { '<Esc>', nil,                                            { exit = true } },
-    }
-})
+vim.keymap.set("n", "<leader>dp", "<Cmd>popup Debug<CR>")
 
 dap.listeners.after.event_initialized["dapui_config"] = function()
     vim.cmd [[set mouse=a]]
-    debug_popup_map()
+    vim.keymap.set({ "n", "x", "v" }, "<RightMouse>", "<Cmd>popup Debug<CR>")
 end
 
 dap.listeners.before.event_terminated["dapui_config"] = function()
     vim.cmd [[set mouse=]]
-    default_popup_map()
+    vim.keymap.set({ "n", "x", "v" }, "<RightMouse>", "<Cmd>popup PopUp<CR>")
 end
 
 dap.listeners.before.event_exited["dapui_config"] = function()
     vim.cmd [[set mouse=]]
-    default_popup_map()
+    vim.keymap.set({ "n", "x", "v" }, "<RightMouse>", "<Cmd>popup PopUp<CR>")
 end
