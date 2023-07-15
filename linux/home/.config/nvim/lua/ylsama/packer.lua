@@ -33,4 +33,10 @@ return require('packer').startup(function(use)
     use('anuvyklack/hydra.nvim')
     use('mfussenegger/nvim-jdtls')
     use('rcarriga/nvim-notify')
+    use { "mxsdev/nvim-dap-vscode-js", requires = { "mfussenegger/nvim-dap" } }
+    use {
+        "microsoft/vscode-js-debug",
+        opt = true,
+        run = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out"
+    }
 end)
