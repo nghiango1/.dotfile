@@ -9,6 +9,14 @@ for _, language in ipairs(js_languages) do
     dap.configurations[language] = {
         {
             type = "pwa-node",
+            request = "attach",
+            name = "Attach launch --inspect node",
+            console = "integratedTerminal",
+            processId = require 'dap.utils'.pick_process,
+            cwd = "${workspaceFolder}",
+        },
+        {
+            type = "pwa-node",
             request = "launch",
             name = "Launch file",
             console = "integratedTerminal",
@@ -16,9 +24,12 @@ for _, language in ipairs(js_languages) do
             cwd = "${workspaceFolder}",
         },
         {
-            type = "pwa-node",
+            type = "pwa-msedge",
             request = "attach",
-            name = "Attach",
+            address = "10.8.0.15",
+            port = "9222",
+            name = "Attach NEC over VPN network",
+            console = "integratedTerminal",
             processId = require 'dap.utils'.pick_process,
             cwd = "${workspaceFolder}",
         },
