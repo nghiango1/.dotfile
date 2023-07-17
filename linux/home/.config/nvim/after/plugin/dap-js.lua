@@ -12,7 +12,6 @@ for _, language in ipairs(js_languages) do
             request = "attach",
             name = "Attach launch --inspect node",
             console = "integratedTerminal",
-            processId = require 'dap.utils'.pick_process,
             cwd = "${workspaceFolder}",
         },
         {
@@ -21,16 +20,6 @@ for _, language in ipairs(js_languages) do
             name = "Launch file",
             console = "integratedTerminal",
             program = "${file}",
-            cwd = "${workspaceFolder}",
-        },
-        {
-            type = "pwa-msedge",
-            request = "attach",
-            address = "10.8.0.15",
-            port = "9222",
-            name = "Attach NEC over VPN network",
-            console = "integratedTerminal",
-            processId = require 'dap.utils'.pick_process,
             cwd = "${workspaceFolder}",
         },
         {
