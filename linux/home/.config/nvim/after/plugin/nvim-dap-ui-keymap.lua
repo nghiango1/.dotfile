@@ -18,6 +18,17 @@ vim.cmd [[nnoremenu Debug.Show\ UI          <Cmd>DapUIToggleUI<CR>]]
 vim.cmd [[vnoremenu Debug.Evaluation        <Cmd>lua require("dapui").eval()<CR>]]
 vim.cmd [[vnoremenu Debug.Watch             <Cmd>DapUIAddWatch<CR>]]
 
+dapui.register_element('hover', dapui.elements.hover)
+
+local function openHover()
+    dapui.float_element('hover')
+end
+local function openConsole()
+    dapui.float_element('console', { h = 12, w = 12, enter = true })
+end
+
+vim.keymap.set("n", "<leader>duc", openConsole)
+vim.keymap.set("n", "<leader>K", openHover)
 vim.keymap.set("n", "<leader>dui", dapui.toggle)
 vim.keymap.set("n", "<leader>dp", "<Cmd>popup Debug<CR>")
 
