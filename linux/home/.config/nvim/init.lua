@@ -1,9 +1,9 @@
 require("ylsama")
 
 vim.cmd [[
-" Setup c compiler, debuger(?)
+" Setup c compiler, debuger
 " c
-" set makeprg=gcc\ -fdiagnostics-plain-output\ -I.\ -o\ %:r\ %
+" set makeprg=gcc\ -fdiagnostics-plain-output\ -g\ -I.\ -o\ %:r\ %
 
 " rust standalone
 " set makeprg=rustc\ -g\ --error-format=short\ -o\ %:r\ %
