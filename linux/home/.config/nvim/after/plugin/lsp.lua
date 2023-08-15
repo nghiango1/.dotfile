@@ -38,7 +38,7 @@ lsp.set_preferences({
     }
 })
 
-lsp.on_attach(function(client, bufnr)
+lsp.on_attach(function(_, bufnr)
     local opts = { buffer = bufnr, remap = false }
 
     vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
@@ -53,6 +53,7 @@ lsp.on_attach(function(client, bufnr)
     vim.keymap.set("i", "<C-j>", function() vim.lsp.buf.signature_help() end, opts)
 end)
 
+lsp.skip_server_setup({ 'jdtls' })
 lsp.setup()
 
 vim.diagnostic.config({

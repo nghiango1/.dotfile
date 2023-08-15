@@ -5,6 +5,7 @@ function _G.t(str)
 end
 
 vim.keymap.set("i", "<C-t>", "")
+vim.keymap.set("n", "U", "<C-r>")
 
 vim.keymap.set("i", _G.t "<C-h>", "<C-Left>")
 vim.keymap.set("i", _G.t "<C-l>", "<C-Right>")
@@ -51,6 +52,8 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
 
 vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/lua/ylsama/.<CR>");
+vim.keymap.set("n", "C-h", "`H");
+vim.keymap.set("n", "C-i", "`I");
 
 vim.keymap.set("n", "<leader><leader>", function()
     vim.cmd("so")

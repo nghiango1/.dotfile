@@ -28,6 +28,17 @@ return require('packer').startup(function(use)
         }
     }
     use('tpope/vim-dadbod')
+    use('mfussenegger/nvim-dap')
+    use { "rcarriga/nvim-dap-ui", requires = { "mfussenegger/nvim-dap" } }
     use('anuvyklack/hydra.nvim')
-    use('puremourning/vimspector')
+    use('mfussenegger/nvim-jdtls')
+    use('rcarriga/nvim-notify')
+    use { "mxsdev/nvim-dap-vscode-js", requires = { "mfussenegger/nvim-dap" } }
+    use {
+        "microsoft/vscode-js-debug",
+        opt = true,
+        run = "npm install --legacy-peer-deps && npx gulp vsDebugServerBundle && mv dist out"
+    }
+    use('simrat39/rust-tools.nvim')
+    use('theHamsta/nvim-dap-virtual-text')
 end)

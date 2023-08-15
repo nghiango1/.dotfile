@@ -7,13 +7,14 @@ Hydra({
         invoke_on_body = true,
         hint = {
             border = 'rounded',
+            position = 'bottom',
         }
     },
     mode = { 'n', 'x' },
     body = '<leader>d',
     heads = {
         { 'c',  "<Plug>VimspectorContinue",        { desc = 'Continue' } },
-        { 's',  "<Plug>VimspectorStop",            { desc = 'Stop' } },
+        { 'ss',  "<Plug>VimspectorStop",            { desc = 'Stop' } },
         { 'r',  "<Plug>VimpectorRestart",          { desc = 'Restart' } },
         { 'p',  "<Plug>VimspectorPause",           { desc = 'Pause' } },
         { 'vp', "<Cmd>popup PopUp<CR>",            { desc = 'Show PopUp' } },
