@@ -8,7 +8,7 @@ vim.keymap.set("i", "<C-t>", "")
 vim.keymap.set("n", "U", "<C-r>")
 
 vim.keymap.set("i", _G.t "<C-h>", "<C-Left>")
-vim.keymap.set("i", _G.t "<C-l>", "<C-Right>")
+vim.keymap.set("i", _G.t "<C-l>", "<C-\\><C-N>ea")
 
 vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
