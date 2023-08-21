@@ -28,6 +28,7 @@ local function openConsole()
 end
 
 vim.keymap.set("n", "<leader>duc", openConsole)
+vim.keymap.set("n", "<leader>t", openConsole)
 vim.keymap.set("n", "<leader>K", openHover)
 vim.keymap.set("n", "<leader>dui", dapui.toggle)
 vim.keymap.set("n", "<leader>dp", "<Cmd>popup Debug<CR>")

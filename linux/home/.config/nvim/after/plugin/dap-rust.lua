@@ -34,15 +34,23 @@ dap.configurations.rust = {
 
 dap.configurations.c = {
     {
-        name = "Launch DAP defaul",
+        name = "c hello default",
         type = "c",
         request = "launch",
-        program = function()
-            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-        end,
+        program = "${workspaceFolder}/myprogram",
         cwd = '${workspaceFolder}',
         stopOnEntry = false,
     },
+--    {
+--        name = "Launch DAP defaul",
+--        type = "c",
+--        request = "launch",
+--        program = function()
+--            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+--        end,
+--        cwd = '${workspaceFolder}',
+--        stopOnEntry = false,
+--    },
 }
 
 dap.configurations.cpp = dap.configurations.rust
