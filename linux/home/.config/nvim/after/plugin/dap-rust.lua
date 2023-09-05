@@ -37,9 +37,7 @@ dap.configurations.c = {
         name = "Launch DAP defaul",
         type = "c",
         request = "launch",
-        program = function()
-            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-        end,
+        program = "${workspaceFolder}/dist/${fileBasenameNoExtension}",
         cwd = '${workspaceFolder}',
         stopOnEntry = false,
     },
