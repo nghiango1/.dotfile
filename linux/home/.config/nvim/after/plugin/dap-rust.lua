@@ -4,7 +4,7 @@ dap.adapters.codelldb = {
     type = 'server',
     port = "${port}",
     executable = {
-        command = '/home/termux/.local/share/nvim/mason/bin/codelldb',
+        command = 'codelldb',
         args = { "--port", "${port}" },
     }
 }

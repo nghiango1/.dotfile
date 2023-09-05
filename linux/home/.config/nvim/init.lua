@@ -3,13 +3,13 @@ require("ylsama")
 vim.cmd [[
 " Setup c compiler, debuger
 " c
-" set makeprg=gcc\ -fdiagnostics-plain-output\ -g\ -I.\ -o\ %:r\ %
+set makeprg=gcc\ -fdiagnostics-plain-output\ -g\ -I.\ -o\ dist/%:r\ %
 
 " rust standalone
 " set makeprg=rustc\ -g\ --error-format=short\ -o\ %:r\ %
 
 " rust cargo
-set makeprg=cargo\ build\ --message-format=short
+" set makeprg=cargo\ build\ --message-format=short
 set errorformat=%f:%l:%c:%t:%m,%f:%l:%c:%m,%f:%m,%m
 
 " Toggle quickfix window
