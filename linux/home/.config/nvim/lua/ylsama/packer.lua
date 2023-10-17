@@ -41,4 +41,5 @@ return require('packer').startup(function(use)
     }
     use('simrat39/rust-tools.nvim')
     use('theHamsta/nvim-dap-virtual-text')
+    use { 'sourcegraph/sg.nvim', run = 'nvim -l build/init.lua' }
 end)
