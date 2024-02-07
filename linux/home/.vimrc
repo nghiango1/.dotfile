@@ -29,8 +29,6 @@ nnoremap <silent> <leader>dn :colder<CR>
 nnoremap <silent> <leader>dN :cnewer<CR>
 nnoremap <expr> q bufname('%') ==# 'Quickfix' ? ":cclose<CR>" : "q"
 
-
-
 " Jumping
 nnoremap <C-u> <C-u>zz
 nnoremap <C-d> <C-d>zz
@@ -107,8 +105,5 @@ nnoremap <leader>pr2 `2
 nnoremap <leader>pr3 `3
 nnoremap <leader>pr4 `4
 
-
-" O just insert line, not insert mode
-nnoremap o o
-nnoremap O O
+" U is <C-R> make more sense
 nnoremap U 
