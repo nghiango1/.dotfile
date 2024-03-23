@@ -1,13 +1,13 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
-
+let
+  home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-23.11.tar.gz";
+in
 {
+  # Include the results of the hardware scan.
   imports =
-    [ # Include the results of the hardware scan.
+    [ 
       ./hardware-configuration.nix
+      (import "${home-manager}/nixos")
     ];
 
   # Bootloader.
@@ -15,8 +15,10 @@
   boot.loader.grub.device = "/dev/sda";
   boot.loader.grub.useOSProber = true;
 
-  networking.hostName = "nec-pc"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  # Define hostname.
+  networking.hostName = "nec-pc";
+  # Enables wireless support via wpa_supplicant.
+  # networking.wireless.enable = true;  
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
@@ -90,25 +92,65 @@
     ];
   };
 
+  home-manager.users.ylong = {
+    home.stateVersion = "23.11";
+    
+    programs.git = {
+      enable = true;
+      userName  = "nghiango1";
+      userEmail = "ducnghia.tin47@gmail.com";
+    };
+
+    programs.neovim.plugins = with pkgs.vimPlugins; [
+    ];
+
+  };
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    xclip
+    lua
     unzip
     go
     gcc
-    neovim
     nodejs
     python3
     wget
-    git
-    tmux
     keepassxc
     rclone
     fzf
+    
+    gnomeExtensions.dash-to-dock
+    gnomeExtensions.topicons-plus
+    gnomeExtensions.appindicator
   ];
+
+  services.gnome.gnome-browser-connector.enable = true;
+  services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+    [org/gnome/shell]
+    app-picker-view=uint32 1
+    enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'TopIcons@phocean.net', ]
+    had-bluetooth-devices-setup=true
+    favorite-apps=['org.gnome.Terminal.desktop', 'firefox.desktop', 'org.gnome.Nautilus.desktop']
+
+    [org/gnome/shell/extensions/dash-to-dock]
+    preferred-monitor=0
+    multi-monitor=false
+    height-fraction=0.90000000000000002
+    dash-max-icon-size=64
+    icon-size-fixed=true
+  '';
+
+  i18n.inputMethod = {
+    enabled = "ibus";
+    ibus = {
+      engines = with pkgs.ibus-engines; [ hangul bamboo ];
+    };
+  };
 
   fonts = {
     packages = with pkgs; [
@@ -125,7 +167,6 @@
   };
 
   environment.variables = rec {
-    EDITOR = "nvim";
     VISUAL = "nvim";
   };
 
@@ -137,14 +178,154 @@
   };
 
   environment.shellAliases = {
-    vi = "nvim";
+    sudovi = "sudo -E -s nvim";
     # Hack for sudo alias to work, check https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
     sudo = "sudo ";
-    sudovi = "sudo -E -s nvim";
+    # Alias for linked library wraper shell
+    nix-ln-shell = "nix-shell ~/workspace/dotfile/nixos/glibcLinked.nix --command";
   };
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
+  # This help dynamic linked executable, which pair with `nix-ln-shell` alias
+  # eg: Mason prebuild LSP server
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    alsa-lib
+    at-spi2-atk
+    at-spi2-core
+    atk
+    cairo
+    cups
+    curl
+    dbus
+    expat
+    fontconfig
+    freetype
+    fuse3
+    gdk-pixbuf
+    glib
+    gtk3
+    icu
+    libGL
+    libappindicator-gtk3
+    libdrm
+    libglvnd
+    libnotify
+    libpulseaudio
+    libunwind
+    libusb1
+    libuuid
+    libxkbcommon
+    libxml2
+    mesa
+    nspr
+    nss
+    openssl
+    pango
+    pipewire
+    stdenv.cc.cc
+    systemd
+    vulkan-loader
+    xorg.libX11
+    xorg.libXScrnSaver
+    xorg.libXcomposite
+    xorg.libXcursor
+    xorg.libXdamage
+    xorg.libXext
+    xorg.libXfixes
+    xorg.libXi
+    xorg.libXrandr
+    xorg.libXrender
+    xorg.libXtst
+    xorg.libxcb
+    xorg.libxkbfile
+    xorg.libxshmfence
+    zlib
+  ];
+
+  programs.tmux = {
+    enable = true;
+    terminal = "screen-256color";
+    keyMode = "vi";
+    baseIndex = 1;
+    historyLimit = 10000;
+    escapeTime = 0;
+    clock24 = true;
+    customPaneNavigationAndResize = true;
+    extraConfig = ''
+    # First remove *all* keybindings
+    unbind C-b
+    set-option -g prefix M-a
+    bind-key M-a send-prefix
+    set -g status-style 'bg=#333334 fg=#5eacd3'
+
+    # Vim like
+    bind -T copy-mode-vi v send-keys -X begin-selection
+    bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'xclip -in -selection clipboard'
+
+    # Fzf any session
+    bind-key -r f run-shell "tmux neww tmuxhelper.sh"
+
+    # Copy mode
+    bind-key [ copy-mode
+
+    # Paste buffer
+    bind-key ] paste-buffer
+
+    # Clock
+    setw -g clock-mode-style 24
+    setw -g monitor-activity on
+    
+    # Mouse on/off
+    set -g mouse off
+
+    # Automatically set window title
+    set-window-option -g automatic-rename on
+    set-option -g set-titles on
+
+    # Choose Window
+    bind-key w choose-window
+
+    # New Window with number
+    bind-key 1 new-window -t 1
+    bind-key 2 new-window -t 2
+    bind-key 3 new-window -t 3
+    bind-key 4 new-window -t 4
+    bind-key 5 new-window -t 5
+    bind-key 6 new-window -t 6
+    bind-key 7 new-window -t 7
+    bind-key 8 new-window -t 8
+    bind-key 9 new-window -t 9
+    bind-key 0 new-window -t 10
+
+    # Switch windows alt+number
+    bind-key -n M-1 select-window -t 1
+    bind-key -n M-2 select-window -t 2
+    bind-key -n M-3 select-window -t 3
+    bind-key -n M-4 select-window -t 4
+    bind-key -n M-5 select-window -t 5
+    bind-key -n M-6 select-window -t 6
+    bind-key -n M-7 select-window -t 7
+    bind-key -n M-8 select-window -t 8
+    bind-key -n M-9 select-window -t 9
+    bind-key -n M-0 select-window -t 10
+
+    # Change current pane to next window
+    bind-key ! join-pane -t :1
+    bind-key @ join-pane -t :2
+    bind-key '#' join-pane -t :3
+    bind-key '$' join-pane -t :4
+    bind-key '%' join-pane -t :5
+    bind-key '^' join-pane -t :6
+    bind-key '&' join-pane -t :7
+    bind-key '*' join-pane -t :8
+    bind-key '(' join-pane -t :9
+    bind-key ')' join-pane -t :10
+
+    # Kill Selected Pane
+    bind-key Q kill-pane
+    '';
+  };
+
   programs.git = {
     enable = true;
     config = {
@@ -158,6 +339,17 @@
 
   programs.fuse.userAllowOther = true;
 
+  # Neovim setup
+  programs.neovim = {
+    enable = true;
+
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
+  };
+
+  # Some programs need SUID wrappers, can be configured further or are
+  # started in user sessions.
   # programs.mtr.enable = true;
   # programs.gnupg.agent = {
   #   enable = true;
@@ -165,9 +357,20 @@
   # };
 
   # List services that you want to enable:
-
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh.enable = true;
+
+  systemd.user.services.ggdrive = {
+      enable = true;
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network-online.target" ];
+      description = "rclone: Remote FUSE filesystem for cloud storage config %i";
+      serviceConfig = {
+        Type = "notify";
+        ExecStart = ''${pkgs.rclone}/bin/rclone mount --config=%h/.config/rclone/rclone.conf --cache-dir=%h/mnt/cache-ggdrive --log-file=/tmp/rclone-ggdrive.log --poll-interval 15s --allow-other --dir-cache-time 1000h --log-level INFO --vfs-cache-mode full --vfs-cache-max-size 100G --vfs-cache-max-age 120h --bwlimit-file 16M ggdrive: %h/mnt/ggdrive'';
+        ExecStop = ''/run/wrappers/bin/fusermount -u %h/mnt/ggdrive'';   
+      };
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
