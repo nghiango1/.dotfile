@@ -15,7 +15,7 @@
   boot.loader.grub.device = "/dev/sda";
   boot.loader.grub.useOSProber = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "nec-pc"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -96,7 +96,12 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    unzip
+    go
+    gcc
     neovim
+    nodejs
+    python3
     wget
     git
     tmux
@@ -105,13 +110,37 @@
     fzf
   ];
 
-  environment.variables = {
+  fonts = {
+    packages = with pkgs; [
+      (nerdfonts.override { fonts = [ "Ubuntu" ]; })
+    ];
+
+    fontconfig = {
+      defaultFonts = {
+        serif = [ "Ubuntu" ];
+        sansSerif = [ "Ubuntu" ];
+        monospace = [ "Ubuntu" ];
+      };
+    };
+  };
+
+  environment.variables = rec {
     EDITOR = "nvim";
     VISUAL = "nvim";
   };
 
+  environment.sessionVariables = rec {
+    XDG_BIN_HOME = "$HOME/.local/bin";
+    PATH = [ 
+      "${XDG_BIN_HOME}"
+    ];
+  };
+
   environment.shellAliases = {
     vi = "nvim";
+    # Hack for sudo alias to work, check https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
+    sudo = "sudo ";
+    sudovi = "sudo -E -s nvim";
   };
 
   # Some programs need SUID wrappers, can be configured further or are
