@@ -101,9 +101,358 @@ in
       userEmail = "ducnghia.tin47@gmail.com";
     };
 
-    programs.neovim.plugins = with pkgs.vimPlugins; [
-    ];
+    programs.neovim = {
+      enable = true;
 
+      viAlias = true;
+      vimAlias = true;
+
+      plugins = with pkgs.vimPlugins; [
+        vim-sleuth
+        vim-fugitive
+        vim-rhubarb
+        nvim-lspconfig
+        fidget-nvim
+
+        {
+          plugin = nvim-cmp;
+          type = "lua";
+          config = ''
+          local cmp = require 'cmp'
+          local luasnip = require 'luasnip'
+          require('luasnip.loaders.from_vscode').lazy_load()
+          luasnip.config.setup {}
+
+          cmp.setup {
+            snippet = {
+              expand = function(args)
+                luasnip.lsp_expand(args.body)
+              end,
+            },
+            mapping = cmp.mapping.preset.insert {
+              ["<c-a>"] = cmp.mapping.complete {
+                config = {
+                  sources = {
+                    { name = "cody" },
+                  },
+                },
+              },
+              ['<C-n>'] = cmp.mapping.select_next_item(),
+              ['<C-p>'] = cmp.mapping.select_prev_item(),
+              ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+              ['<C-f>'] = cmp.mapping.scroll_docs(4),
+              ['<C-Space>'] = cmp.mapping.complete {},
+              -- ['<CR>'] = cmp.mapping.confirm {
+              --   behavior = cmp.ConfirmBehavior.Replace,
+              --   select = true,
+              -- },
+              ['<Tab>'] = cmp.mapping(function(fallback)
+                if cmp.visible() then
+                  cmp.select_next_item()
+                elseif luasnip.expand_or_locally_jumpable() then
+                  luasnip.expand_or_jump()
+                else
+                  fallback()
+                end
+              end, { 'i', 's' }),
+              ['<S-Tab>'] = cmp.mapping(function(fallback)
+                if cmp.visible() then
+                  cmp.select_prev_item()
+                elseif luasnip.locally_jumpable(-1) then
+                  luasnip.jump(-1)
+                else
+                  fallback()
+                end
+              end, { 'i', 's' }),
+            },
+            sources = {
+              -- { name = 'cody' },
+              -- {
+              --   name = 'look',
+              --   keyword_length = 2,
+              --   option = {
+              --     convert_case = true,
+              --     loud = true
+              --     --dict = '/usr/share/dict/words'
+              --   }
+              -- },
+              { name = 'nvim_lsp' },
+              { name = 'luasnip' },
+            },
+          }
+          '';
+        }
+        luasnip
+        cmp_luasnip
+        cmp-nvim-lsp
+        friendly-snippets
+        {
+          plugin = which-key-nvim;
+          type = "lua";
+          config = ''
+          require('which-key').register {
+            ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
+            ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
+            ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
+            ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
+            ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
+            ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
+            ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+          }
+          '';
+        }
+
+        {
+          plugin = rose-pine;
+          type = "lua";
+          config = ''
+          require('rose-pine').setup({
+              disable_background = true
+          })
+
+          function SetBgColor(color)
+              color = color or "rose-pine"
+              vim.cmd.colorscheme(color)
+
+              vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+              vim.api.nvim_set_hl(0, "NormalFloat", {bg = "none" })
+          end
+
+          SetBgColor()
+          '';
+        }
+        gitsigns-nvim
+        lualine-nvim
+        telescope-nvim
+        plenary-nvim
+        {
+          plugin = telescope-fzf-native-nvim;
+          type = "lua";
+          config = ''
+          -- [[ Configure Telescope ]]
+          -- See `:help telescope` and `:help telescope.setup()`
+          require('telescope').setup {
+            defaults = {
+              mappings = {
+                i = {
+                  ['<C-u>'] = false,
+                  ['<C-d>'] = false,
+                },
+              },
+            },
+          }
+
+          -- Enable telescope fzf native, if installed
+          pcall(require('telescope').load_extension, 'fzf')
+
+          -- See `:help telescope.builtin`
+          vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
+          vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
+          vim.keymap.set('n', '<leader>/', function()
+            -- You can pass additional configuration to telescope to change theme, layout, etc.
+            require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+              winblend = 10,
+              previewer = false,
+            })
+          end, { desc = '[/] Fuzzily search in current buffer' })
+
+          vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
+          vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+          vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
+          vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
+          vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
+          vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
+          vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+
+
+          -- Diagnostic keymaps
+          vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
+          vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+          vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+          vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+          '';
+        }
+        nvim-treesitter.withAllGrammars
+        nvim-treesitter
+
+        {
+          plugin = nvim-treesitter;
+          type = "lua";
+          config = ''
+            require'nvim-treesitter.configs'.setup {
+              -- A list of parser names, or "all" (the five listed parsers should always be installed)
+              ensure_installed = {},
+
+              -- Install parsers synchronously (only applied to `ensure_installed`)
+              sync_install = false,
+
+              -- Automatically install missing parsers when entering buffer
+              -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+              auto_install = false,
+
+              -- List of parsers to ignore installing (for "all")
+              ignore_install = {"all"},
+
+              -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+              -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+              -- Using this option may slow down your editor, and you may see some duplicate highlights.
+              -- Instead of true it can also be a list of languages
+              additional_vim_regex_highlighting = false,
+
+              highlight = { enable = true },
+              indent = { enable = true },
+              incremental_selection = {
+                enable = true,
+                keymaps = {
+                  init_selection = '<c-space>',
+                  node_incremental = '<c-space>',
+                  scope_incremental = '<c-s>',
+                  node_decremental = '<M-space>',
+                },
+              },
+              textobjects = {
+                select = {
+                  enable = true,
+                  lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+                  keymaps = {
+                    -- You can use the capture groups defined in textobjects.scm
+                    ['aa'] = '@parameter.outer',
+                    ['ia'] = '@parameter.inner',
+                    ['af'] = '@function.outer',
+                    ['if'] = '@function.inner',
+                    ['ac'] = '@class.outer',
+                    ['ic'] = '@class.inner',
+                  },
+                },
+                move = {
+                  enable = true,
+                  set_jumps = true, -- whether to set jumps in the jumplist
+                  goto_next_start = {
+                    [']m'] = '@function.outer',
+                    [']]'] = '@class.outer',
+                  },
+                  goto_next_end = {
+                    [']M'] = '@function.outer',
+                    [']['] = '@class.outer',
+                  },
+                  goto_previous_start = {
+                    ['[m'] = '@function.outer',
+                    ['[['] = '@class.outer',
+                  },
+                  goto_previous_end = {
+                    ['[M'] = '@function.outer',
+                    ['[]'] = '@class.outer',
+                  },
+                },
+                swap = {
+                  enable = true,
+                  swap_next = {
+                    ['<leader>a'] = '@parameter.inner',
+                  },
+                  swap_previous = {
+                    ['<leader>A'] = '@parameter.inner',
+                  },
+                },
+              },
+            }
+          '';
+        }
+
+        nvim-jdtls
+      ];
+  
+      extraLuaConfig = ''
+        vim.g.mapleader = ' '
+        vim.g.maplocalleader = ' '
+        
+        vim.opt.nu = true
+        vim.opt.relativenumber = true
+        vim.opt.tabstop = 4
+        vim.opt.softtabstop = 4
+        vim.opt.shiftwidth = 4
+        vim.opt.expandtab = true
+        vim.opt.smartindent = true
+        vim.opt.wrap = false
+        vim.opt.swapfile = false
+        vim.opt.backup = false
+        vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+        vim.opt.undofile = true
+        vim.opt.hlsearch = false
+        vim.opt.incsearch = true
+        vim.opt.termguicolors = true
+        vim.opt.scrolloff = 3
+        vim.opt.signcolumn = "yes"
+        vim.opt.isfname:append("@-@")
+        vim.opt.updatetime = 50
+        vim.opt.colorcolumn = "80"
+        vim.cmd [[set listchars=tab:\ >\ ]]
+        vim.o.completeopt = 'menuone,noselect'
+        vim.o.termguicolors = true
+
+        vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+        vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+        vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+        -- Maybe i'm wrong, this work like >> but in insert mode
+        vim.keymap.set("i", "<C-t>", "")
+
+        -- Why Undo is ctrl r again
+        vim.keymap.set("n", "U", "<C-r>")
+
+        -- Quick go to next word in insert mode with Ctrl h and Ctrl l
+        -- Trying to replace Ctrl left and Ctrl right here
+        function _G.t(str)
+          return vim.api.nvim_replace_termcodes(str, true, true, true)
+        end
+
+        vim.keymap.set("i", _G.t "<C-h>", "<C-Left>")
+        vim.keymap.set("i", _G.t "<C-l>", "<C-\\><C-N>ea")
+
+        vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+
+        -- Move all selected line Up/Down with JK
+        vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
+        vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+
+        -- Mark to keep the cursor at place when [J]oin line
+        vim.keymap.set("n", "J", "mzJ`z")
+
+        -- Keep thing in the middle when jump
+        vim.keymap.set("n", "<C-d>", "<C-d>zz")
+        vim.keymap.set("n", "<C-u>", "<C-u>zz")
+        vim.keymap.set("n", "n", "nzzzv")
+        vim.keymap.set("n", "N", "Nzzzv")
+
+        -- Normally I work with <leader>cn and <leader>cN
+        vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz")
+        vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
+
+        -- Visual mode paste without changing register " value
+        vim.keymap.set("x", "<leader>p", [["_dP]])
+
+        -- Copy to register + (system cliboard)
+        vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
+        vim.keymap.set("n", "<leader>Y", [["+Y]])
+
+        -- Delete to register + (? Why we need this again)
+        vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
+
+        -- For fun, Ctrl c to Esc, almost no diferent and I only use Esc
+        vim.keymap.set("i", "<C-c>", "<Esc>")
+
+        -- Format
+        vim.keymap.set("n", "<leader>f", vim.lsp.buf.format)
+
+        -- Replace in current file, with regex
+        vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+
+        -- For bash like file, normally i will go for normal console command instead
+        vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true })
+
+        -- Quick jump to config file
+        vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/init.lua<CR>");
+        vim.keymap.set("n", "<leader>vpo", "<cmd>e ~/.config/nvim/lua/ylsama/telex.lua<CR>");
+      '';
+    };
   };
 
   # Allow unfree packages
@@ -112,6 +461,10 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    lua-language-server
+    jdt-language-server
+    clang-tools
+    bear
     gnumake
     xclip
     lua
@@ -189,59 +542,8 @@ in
   # This help dynamic linked executable, which pair with `nix-ln-shell` alias
   # eg: Mason prebuild LSP server
   programs.nix-ld.enable = true;
-  programs.nix-ld.libraries = with pkgs; [
-    alsa-lib
-    at-spi2-atk
-    at-spi2-core
-    atk
-    cairo
-    cups
-    curl
-    dbus
-    expat
-    fontconfig
-    freetype
-    fuse3
-    gdk-pixbuf
-    glib
-    gtk3
-    icu
-    libGL
-    libappindicator-gtk3
-    libdrm
-    libglvnd
-    libnotify
-    libpulseaudio
-    libunwind
-    libusb1
-    libuuid
-    libxkbcommon
-    libxml2
-    mesa
-    nspr
-    nss
-    openssl
-    pango
-    pipewire
-    stdenv.cc.cc
-    systemd
-    vulkan-loader
-    xorg.libX11
-    xorg.libXScrnSaver
-    xorg.libXcomposite
-    xorg.libXcursor
-    xorg.libXdamage
-    xorg.libXext
-    xorg.libXfixes
-    xorg.libXi
-    xorg.libXrandr
-    xorg.libXrender
-    xorg.libXtst
-    xorg.libxcb
-    xorg.libxkbfile
-    xorg.libxshmfence
-    zlib
-  ];
+  # It already come with default library, so these just not needed, unless we need more
+  # programs.nix-ld.libraries = with pkgs; [ alsa-lib at-spi2-atk at-spi2-core atk cairo cups curl dbus expat fontconfig freetype fuse3 gdk-pixbuf glib gtk3 icu libGL libappindicator-gtk3 libdrm libglvnd libnotify libpulseaudio libunwind libusb1 libuuid libxkbcommon libxml2 mesa nspr nss openssl pango pipewire stdenv.cc.cc systemd vulkan-loader xorg.libX11 xorg.libXScrnSaver xorg.libXcomposite xorg.libXcursor xorg.libXdamage xorg.libXext xorg.libXfixes xorg.libXi xorg.libXrandr xorg.libXrender xorg.libXtst xorg.libxcb xorg.libxkbfile xorg.libxshmfence zlib ];
 
   programs.tmux = {
     enable = true;
@@ -347,6 +649,12 @@ in
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
+  };
+
+  # Unsure about should I use oracle-java
+  programs.java = {
+    enable = true;
+    package = pkgs.openjdk17;
   };
 
   # Some programs need SUID wrappers, can be configured further or are
