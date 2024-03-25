@@ -558,10 +558,6 @@ in
             -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
             vim.keymap.set('n', '<F7>', dapui.toggle, { desc = 'Debug: See last session result.' })
 
-            dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-            dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-            dap.listeners.before.event_exited['dapui_config'] = dapui.close
-
             -- Install golang specific config
             require('dap-go').setup() 
 
@@ -676,6 +672,59 @@ in
                         end
                         return args
                     end,
+                },
+            }
+
+            -- CCP/C/Rust with gdb
+            dap.adapters.cppdbg = {
+              id = 'cppdbg',
+              type = 'executable',
+              command = '${pkgs.vscode-extensions.ms-vscode.cpptools}/share/vscode/extensions/ms-vscode.cpptools/debugAdapters/bin/OpenDebugAD7',
+            }
+
+            
+            dap.adapters.c = dap.adapters.cppdbg
+            dap.adapters.cpp = dap.adapters.cppdbg
+            dap.adapters.rust = dap.adapters.cppdbg
+
+            dap.configurations.rust = {
+                {
+                    name = "Rust cargo default",
+                    type = "rust",
+                    request = "launch",
+                    program = "''${workspaceFolder}/target/debug/''${workspaceFolderBasename}",
+                    cwd = "''${workspaceFolder}",
+                    stopOnEntry = false,
+                },
+                {
+                    name = "Rust standalone",
+                    type = "rust",
+                    request = "launch",
+                    program = "''${fileBasenameNoExtension}",
+                    cwd = "''${workspaceFolder}",
+                    stopOnEntry = false,
+                },
+            }
+
+            dap.configurations.c = {
+                {
+                    name = "Launch DAP default",
+                    type = "c",
+                    request = "launch",
+                    program = "''${workspaceFolder}/dist/''${fileBasenameNoExtension}",
+                    cwd = "''${workspaceFolder}",
+                    stopOnEntry = false,
+                },
+            }
+
+            dap.configurations.cpp = {
+                {
+                    name = "Launch DAP default",
+                    type = "cpp",
+                    request = "launch",
+                    program = "''${workspaceFolder}/dist/''${fileBasenameNoExtension}",
+                    cwd = "''${workspaceFolder}",
+                    stopOnEntry = false,
                 },
             }
           '';
@@ -799,11 +848,14 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    python311Packages.debugpy
     nixpkgs-fmt
     nixd
     lua-language-server
     jdt-language-server
     clang-tools
+    gdb
+    vscode-extensions.ms-vscode.cpptools
     bear
     gnumake
     xclip
