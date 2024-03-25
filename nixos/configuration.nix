@@ -5,7 +5,7 @@ in
 {
   # Include the results of the hardware scan.
   imports =
-    [ 
+    [
       ./hardware-configuration.nix
       (import "${home-manager}/nixos")
     ];
@@ -88,16 +88,16 @@ in
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       firefox
-    #  thunderbird
+      #  thunderbird
     ];
   };
 
   home-manager.users.ylong = {
     home.stateVersion = "23.11";
-    
+
     programs.git = {
       enable = true;
-      userName  = "nghiango1";
+      userName = "nghiango1";
       userEmail = "ducnghia.tin47@gmail.com";
     };
 
@@ -111,94 +111,171 @@ in
         vim-sleuth
         vim-fugitive
         vim-rhubarb
-        nvim-lspconfig
+
+        {
+          plugin = nvim-lspconfig;
+          type = "lua";
+          config = ''
+            local lspconfig = require('lspconfig')
+            lspconfig.clangd.setup {}
+            lspconfig.nixd.setup {}
+            lspconfig.lua_ls.setup {
+              on_init = function(client)
+                local path = client.workspace_folders[1].name
+                if vim.loop.fs_stat(path .. '/.luarc.json') or vim.loop.fs_stat(path .. '/.luarc.jsonc') then
+                  return
+                end
+
+                client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
+                  runtime = {
+                    -- Tell the language server which version of Lua you're using
+                    -- (most likely LuaJIT in the case of Neovim)
+                    version = 'LuaJIT'
+                  },
+                  -- Make the server aware of Neovim runtime files
+                  workspace = {
+                    checkThirdParty = false,
+                    library = {
+                      vim.env.VIMRUNTIME
+                    }
+                    -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
+                    -- library = vim.api.nvim_get_runtime_file("", true)
+                  }
+                })
+              end,
+              settings = {
+                Lua = {
+                  workspace = { checkThirdParty = false },
+                  telemetry = { enable = false },
+                },
+              }
+            }
+            vim.diagnostic.config({
+              virtual_text = true
+            })
+
+            vim.api.nvim_create_autocmd('LspAttach', {
+              group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+              callback = function(ev)
+                -- Enable completion triggered by <c-x><c-o>
+                vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
+                -- Buffer local mappings.
+                -- See `:help vim.lsp.*` for documentation on any of the below functions
+                local opts = { buffer = ev.buf }
+                vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+                vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+                vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+                vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+                vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+                vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+                vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+                vim.keymap.set('n', '<space>wl', function()
+                  print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+                end, opts)
+                vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+                vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+                vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
+                vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+                vim.keymap.set('n', '<space>f', function()
+                    vim.lsp.buf.format { async = true }
+                end, opts)
+              end,
+            })
+          '';
+        }
         fidget-nvim
 
         {
           plugin = nvim-cmp;
           type = "lua";
           config = ''
-          local cmp = require 'cmp'
-          local luasnip = require 'luasnip'
-          require('luasnip.loaders.from_vscode').lazy_load()
-          luasnip.config.setup {}
+            local cmp = require 'cmp'
+            local luasnip = require 'luasnip'
+            require('luasnip.loaders.from_vscode').lazy_load()
+            luasnip.config.setup {}
 
-          cmp.setup {
-            snippet = {
-              expand = function(args)
-                luasnip.lsp_expand(args.body)
-              end,
-            },
-            mapping = cmp.mapping.preset.insert {
-              ["<c-a>"] = cmp.mapping.complete {
-                config = {
-                  sources = {
-                    { name = "cody" },
+            cmp.setup {
+              snippet = {
+                expand = function(args)
+                  luasnip.lsp_expand(args.body)
+                end,
+              },
+              mapping = cmp.mapping.preset.insert {
+                ["<c-a>"] = cmp.mapping.complete {
+                  config = {
+                    sources = {
+                      { name = "cody" },
+                    },
                   },
                 },
+                ['<C-n>'] = cmp.mapping.select_next_item(),
+                ['<C-p>'] = cmp.mapping.select_prev_item(),
+                ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+                ['<C-f>'] = cmp.mapping.scroll_docs(4),
+                ['<C-Space>'] = cmp.mapping.complete {},
+                -- ['<CR>'] = cmp.mapping.confirm {
+                --   behavior = cmp.ConfirmBehavior.Replace,
+                --   select = true,
+                -- },
+                ['<Tab>'] = cmp.mapping(function(fallback)
+                  if cmp.visible() then
+                    cmp.select_next_item()
+                  elseif luasnip.expand_or_locally_jumpable() then
+                    luasnip.expand_or_jump()
+                  else
+                    fallback()
+                  end
+                end, { 'i', 's' }),
+                ['<S-Tab>'] = cmp.mapping(function(fallback)
+                  if cmp.visible() then
+                    cmp.select_prev_item()
+                  elseif luasnip.locally_jumpable(-1) then
+                    luasnip.jump(-1)
+                  else
+                    fallback()
+                  end
+                end, { 'i', 's' }),
               },
-              ['<C-n>'] = cmp.mapping.select_next_item(),
-              ['<C-p>'] = cmp.mapping.select_prev_item(),
-              ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-              ['<C-f>'] = cmp.mapping.scroll_docs(4),
-              ['<C-Space>'] = cmp.mapping.complete {},
-              -- ['<CR>'] = cmp.mapping.confirm {
-              --   behavior = cmp.ConfirmBehavior.Replace,
-              --   select = true,
-              -- },
-              ['<Tab>'] = cmp.mapping(function(fallback)
-                if cmp.visible() then
-                  cmp.select_next_item()
-                elseif luasnip.expand_or_locally_jumpable() then
-                  luasnip.expand_or_jump()
-                else
-                  fallback()
-                end
-              end, { 'i', 's' }),
-              ['<S-Tab>'] = cmp.mapping(function(fallback)
-                if cmp.visible() then
-                  cmp.select_prev_item()
-                elseif luasnip.locally_jumpable(-1) then
-                  luasnip.jump(-1)
-                else
-                  fallback()
-                end
-              end, { 'i', 's' }),
-            },
-            sources = {
-              -- { name = 'cody' },
-              -- {
-              --   name = 'look',
-              --   keyword_length = 2,
-              --   option = {
-              --     convert_case = true,
-              --     loud = true
-              --     --dict = '/usr/share/dict/words'
-              --   }
-              -- },
-              { name = 'nvim_lsp' },
-              { name = 'luasnip' },
-            },
-          }
+              sources = {
+                { name = 'cody' },
+                { name = 'nvim_lsp' },
+                { name = 'luasnip' },
+                {
+                  name = 'look',
+                  keyword_length = 2,
+                  option = {
+                    convert_case = true,
+                    loud = true
+                    --dict = '/usr/share/dict/words'
+                  }
+                },
+              },
+            }
+
+            local capabilities = vim.lsp.protocol.make_client_capabilities()
+            capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
           '';
         }
+
         luasnip
         cmp_luasnip
         cmp-nvim-lsp
         friendly-snippets
+
         {
           plugin = which-key-nvim;
           type = "lua";
           config = ''
-          require('which-key').register {
-            ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-            ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-            ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
-            ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
-            ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-            ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-            ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-          }
+            require('which-key').register {
+              ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
+              ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
+              ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
+              ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
+              ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
+              ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
+              ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+            }
           '';
         }
 
@@ -206,75 +283,128 @@ in
           plugin = rose-pine;
           type = "lua";
           config = ''
-          require('rose-pine').setup({
-              disable_background = true
-          })
+            require('rose-pine').setup({
+                disable_background = true
+            })
 
-          function SetBgColor(color)
-              color = color or "rose-pine"
-              vim.cmd.colorscheme(color)
+            function SetBgColor(color)
+                color = color or "rose-pine"
+                vim.cmd.colorscheme(color)
 
-              vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-              vim.api.nvim_set_hl(0, "NormalFloat", {bg = "none" })
-          end
+                vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+                vim.api.nvim_set_hl(0, "NormalFloat", {bg = "none" })
+            end
 
-          SetBgColor()
+            SetBgColor()
           '';
         }
-        gitsigns-nvim
-        lualine-nvim
+
+        {
+          plugin = gitsigns-nvim;
+          type = "lua";
+          config = ''
+            require('gitsigns').setup{
+              signs = {
+                add = { text = '+' },
+                change = { text = '~' },
+                delete = { text = '_' },
+                topdelete = { text = '‾' },
+                changedelete = { text = '~' },
+              },
+              on_attach = function(bufnr)
+                vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
+
+                -- don't override the built-in and fugitive keymaps
+                local gs = package.loaded.gitsigns
+                vim.keymap.set({ 'n', 'v' }, ']c', function()
+                  if vim.wo.diff then
+                    return ']c'
+                  end
+                  vim.schedule(function()
+                    gs.next_hunk()
+                  end)
+                  return '<Ignore>'
+                end, { expr = true, buffer = bufnr, desc = 'Jump to next hunk' })
+                vim.keymap.set({ 'n', 'v' }, '[c', function()
+                  if vim.wo.diff then
+                    return '[c'
+                  end
+                  vim.schedule(function()
+                    gs.prev_hunk()
+                  end)
+                  return '<Ignore>'
+                end, { expr = true, buffer = bufnr, desc = 'Jump to previous hunk' })
+              end,
+            }
+          '';
+        }
+
+        {
+          plugin = lualine-nvim;
+          type = "lua";
+          config = ''
+            require('lualine').setup {
+              options = {
+                icons_enabled = false,
+                theme = 'onedark',
+                component_separators = '|',
+                section_separators = ''',
+              },
+            }
+          '';
+        }
+
         telescope-nvim
         plenary-nvim
         {
           plugin = telescope-fzf-native-nvim;
           type = "lua";
           config = ''
-          -- [[ Configure Telescope ]]
-          -- See `:help telescope` and `:help telescope.setup()`
-          require('telescope').setup {
-            defaults = {
-              mappings = {
-                i = {
-                  ['<C-u>'] = false,
-                  ['<C-d>'] = false,
+            -- [[ Configure Telescope ]]
+            -- See `:help telescope` and `:help telescope.setup()`
+            require('telescope').setup {
+              defaults = {
+                mappings = {
+                  i = {
+                    ['<C-u>'] = false,
+                    ['<C-d>'] = false,
+                  },
                 },
               },
-            },
-          }
+            }
 
-          -- Enable telescope fzf native, if installed
-          pcall(require('telescope').load_extension, 'fzf')
+            -- Enable telescope fzf native, if installed
+            pcall(require('telescope').load_extension, 'fzf')
 
-          -- See `:help telescope.builtin`
-          vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-          vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-          vim.keymap.set('n', '<leader>/', function()
-            -- You can pass additional configuration to telescope to change theme, layout, etc.
-            require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-              winblend = 10,
-              previewer = false,
-            })
-          end, { desc = '[/] Fuzzily search in current buffer' })
+            -- See `:help telescope.builtin`
+            vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
+            vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
+            vim.keymap.set('n', '<leader>/', function()
+              -- You can pass additional configuration to telescope to change theme, layout, etc.
+              require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+                winblend = 10,
+                previewer = false,
+              })
+            end, { desc = '[/] Fuzzily search in current buffer' })
 
-          vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-          vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-          vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-          vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-          vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-          vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-          vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+            vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
+            vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+            vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
+            vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
+            vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
+            vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
+            vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
 
 
-          -- Diagnostic keymaps
-          vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
-          vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
-          vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
-          vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+            -- Diagnostic keymaps
+            vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
+            vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+            vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+            vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
           '';
         }
-        nvim-treesitter.withAllGrammars
-        nvim-treesitter
 
+        nvim-treesitter.withAllGrammars
         {
           plugin = nvim-treesitter;
           type = "lua";
@@ -290,8 +420,8 @@ in
               -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
               auto_install = false,
 
-              -- List of parsers to ignore installing (for "all")
-              ignore_install = {"all"},
+              -- List of parsers to ignore installing (for 'all')
+              ignore_install = {'all'},
 
               -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
               -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
@@ -359,8 +489,216 @@ in
         }
 
         nvim-jdtls
+        nvim-dap-ui
+        nvim-dap-go
+        {
+          plugin = nvim-dap;
+          type = "lua";
+          config = ''
+            local dap = require 'dap'
+            local dapui = require 'dapui'
+
+            -- Basic debugging keymaps, feel free to change to your liking!
+            vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
+            vim.keymap.set('n', '<F3>', dap.step_out, { desc = 'Debug: Step Out' })
+            vim.keymap.set('n', '<C-b>', dap.toggle_breakpoint, { desc = 'Debug: Toggle Breakpoint' })
+            vim.keymap.set('n', '<leader>pd', require('dap.ext.vscode').load_launchjs)
+            vim.keymap.set('n', '<Leader>dr', dap.continue, { desc = 'DAP [r]un' })
+            vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end, { desc = 'DAP run [l]ast' })
+            vim.keymap.set('n', '<F9>', dap.step_over)
+            vim.keymap.set('n', '<F8>', dap.step_into)
+            vim.keymap.set('n', '<leader>do', dap.repl.toggle, { desc = 'DAP Repl t[o]ggle' })
+
+            vim.keymap.set('n', '<F12>', function() require('dap').step_out() end)
+            vim.keymap.set('n', '<Leader>B', function() require('dap').toggle_breakpoint() end)
+            vim.keymap.set('n', '<Leader>lp',
+                function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end,
+                { desc = 'DAP set [l]og [p]oint' })
+
+            vim.keymap.set({ 'n', 'v' }, '<Leader>dh', function()
+                require('dap.ui.widgets').hover()
+            end, { desc = 'DAP [h]over' })
+            vim.keymap.set({ 'n', 'v' }, '<Leader>dp', function()
+                require('dap.ui.widgets').preview()
+            end, { desc = 'DAP preview' })
+            vim.keymap.set('n', '<Leader>df', function()
+                local widgets = require('dap.ui.widgets')
+                widgets.centered_float(widgets.frames)
+            end, { desc = 'DAP [f]rames' })
+            vim.keymap.set('n', '<Leader>ds', function()
+                local widgets = require('dap.ui.widgets')
+                widgets.centered_float(widgets.scopes)
+            end, { desc = 'DAP [s]copes' })
+
+            vim.keymap.set('n', 'S-<F5>', 'make<CR>')
+            vim.keymap.set('n', '<Leader><F5>', require('dap.ext.vscode').load_launchjs)
+
+            -- Dap UI setup
+            -- For more information, see |:help nvim-dap-ui|
+            dapui.setup {
+              -- Set icons to characters that are more likely to work in every terminal.
+              --    Feel free to remove or use ones that you like more! :)
+              --    Don't feel like these are good choices.
+              icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+              controls = {
+                icons = {
+                  pause = '⏸',
+                  play = '▶',
+                  step_into = '⏎',
+                  step_over = '⏭',
+                  step_out = '⏮',
+                  step_back = 'b',
+                  run_last = '▶▶',
+                  terminate = '⏹',
+                  disconnect = '⏏',
+                },
+              },
+            }
+
+            -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
+            vim.keymap.set('n', '<F7>', dapui.toggle, { desc = 'Debug: See last session result.' })
+
+            dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+            dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+            dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+            -- Install golang specific config
+            require('dap-go').setup() 
+
+            -- Python
+            dap.adapters.python = function(cb, config)
+                if config.request == 'attach' then
+                    ---@diagnostic disable-next-line: undefined-field
+                    local port = (config.connect or config).port
+                    ---@diagnostic disable-next-line: undefined-field
+                    local host = (config.connect or config).host or '127.0.0.1'
+                    cb({
+                        type = 'server',
+                        port = assert(port, '`connect.port` is required for a python `attach` configuration'),
+                        host = host,
+                        options = {
+                            source_filetype = 'python',
+                        },
+                    })
+                else
+                    cb({
+                        type = 'executable',
+                        command = 'debugpy-adapter',
+                        options = {
+                            source_filetype = 'python',
+                        },
+                    })
+                end
+            end
+
+            dap.configurations.python = {
+                {
+                    -- The first three options are required by nvim-dap
+                    type = 'python', -- the type here established the link to the adapter definition: `dap.adapters.python`
+                    request = 'launch',
+                    name = 'Launch file',
+                    console = 'integratedTerminal',
+
+                    -- Options below are for debugpy, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings for supported options
+                    program = "''${file}", -- This configuration will launch the current file if used.
+                    pythonPath = function()
+                        -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
+                        -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
+                        -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
+                        local cwd = vim.fn.getcwd()
+                        if vim.fn.executable(cwd .. '/venv/bin/python') == 1 then
+                            return cwd .. '/venv/bin/python'
+                        elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
+                            return cwd .. '/.venv/bin/python'
+                        else
+                            return '/usr/bin/python'
+                        end
+                    end,
+                },
+
+                {
+                    -- The first three options are required by nvim-dap
+                    type = 'python', -- the type here established the link to the adapter definition: `dap.adapters.python`
+                    request = 'launch',
+                    name = 'Launch file with `--debug` args',
+                    console = 'integratedTerminal',
+
+                    -- Options below are for debugpy, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings for supported options
+                    program = "''${file}", -- This configuration will launch the current file if used.
+                    pythonPath = function()
+                        -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
+                        -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
+                        -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
+                        local cwd = vim.fn.getcwd()
+                        if vim.fn.executable(cwd .. '/venv/bin/python') == 1 then
+                            return cwd .. '/venv/bin/python'
+                        elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
+                            return cwd .. '/.venv/bin/python'
+                        else
+                            return '/usr/bin/python'
+                        end
+                    end,
+                    args = { '--debug' },
+                },
+
+                {
+                    -- The first three options are required by nvim-dap
+                    type = 'python', -- the type here established the link to the adapter definition: `dap.adapters.python`
+                    request = 'launch',
+                    name = 'Launch file with args',
+                    console = 'integratedTerminal',
+
+                    -- Options below are for debugpy, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings for supported options
+                    program = "''${file}", -- This configuration will launch the current file if used.
+                    pythonPath = function()
+                        -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
+                        -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
+                        -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
+                        local cwd = vim.fn.getcwd()
+                        if vim.fn.executable(cwd .. '/venv/bin/python') == 1 then
+                            return cwd .. '/venv/bin/python'
+                        elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
+                            return cwd .. '/.venv/bin/python'
+                        else
+                            return '/usr/bin/python'
+                        end
+                    end,
+                    args = function()
+                        local args = {}
+                        local i = 1
+                        while true do
+                            local arg = vim.fn.input('Argument [' .. i .. ']: ')
+                            if arg == ''' then
+                                break
+                            end
+                            args[i] = arg
+                            i = i + 1
+                        end
+                        return args
+                    end,
+                },
+            }
+          '';
+        }
+
+        {
+          plugin = nvim-autopairs;
+          type = "lua";
+          config = ''
+            require("nvim-autopairs").setup {}
+            -- If you want to automatically add `(` after selecting a function or method
+            local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+            local cmp = require('cmp')
+            cmp.event:on(
+              'confirm_done',
+              cmp_autopairs.on_confirm_done()
+            )
+          '';
+        }
+
+        cmp-look
       ];
-  
+
       extraLuaConfig = ''
         vim.g.mapleader = ' '
         vim.g.maplocalleader = ' '
@@ -461,6 +799,8 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    nixpkgs-fmt
+    nixd
     lua-language-server
     jdt-language-server
     clang-tools
@@ -470,6 +810,7 @@ in
     lua
     unzip
     go
+    gotools
     gcc
     nodejs
     python3
@@ -477,7 +818,7 @@ in
     keepassxc
     rclone
     fzf
-    
+
     gnomeExtensions.dash-to-dock
     gnomeExtensions.topicons-plus
     gnomeExtensions.appindicator
@@ -526,7 +867,7 @@ in
 
   environment.sessionVariables = rec {
     XDG_BIN_HOME = "$HOME/.local/bin";
-    PATH = [ 
+    PATH = [
       "${XDG_BIN_HOME}"
     ];
   };
@@ -555,77 +896,77 @@ in
     clock24 = true;
     customPaneNavigationAndResize = true;
     extraConfig = ''
-    # First remove *all* keybindings
-    unbind C-b
-    set-option -g prefix M-a
-    bind-key M-a send-prefix
-    set -g status-style 'bg=#333334 fg=#5eacd3'
+      # First remove *all* keybindings
+      unbind C-b
+      set-option -g prefix M-a
+      bind-key M-a send-prefix
+      set -g status-style 'bg=#333334 fg=#5eacd3'
 
-    # Vim like
-    bind -T copy-mode-vi v send-keys -X begin-selection
-    bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'xclip -in -selection clipboard'
+      # Vim like
+      bind -T copy-mode-vi v send-keys -X begin-selection
+      bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'xclip -in -selection clipboard'
 
-    # Fzf any session
-    bind-key -r f run-shell "tmux neww tmuxhelper.sh"
+      # Fzf any session
+      bind-key -r f run-shell "tmux neww tmuxhelper.sh"
 
-    # Copy mode
-    bind-key [ copy-mode
+      # Copy mode
+      bind-key [ copy-mode
 
-    # Paste buffer
-    bind-key ] paste-buffer
+      # Paste buffer
+      bind-key ] paste-buffer
 
-    # Clock
-    setw -g clock-mode-style 24
-    setw -g monitor-activity on
+      # Clock
+      setw -g clock-mode-style 24
+      setw -g monitor-activity on
     
-    # Mouse on/off
-    set -g mouse off
+      # Mouse on/off
+      set -g mouse off
 
-    # Automatically set window title
-    set-window-option -g automatic-rename on
-    set-option -g set-titles on
+      # Automatically set window title
+      set-window-option -g automatic-rename on
+      set-option -g set-titles on
 
-    # Choose Window
-    bind-key w choose-window
+      # Choose Window
+      bind-key w choose-window
 
-    # New Window with number
-    bind-key 1 new-window -t 1
-    bind-key 2 new-window -t 2
-    bind-key 3 new-window -t 3
-    bind-key 4 new-window -t 4
-    bind-key 5 new-window -t 5
-    bind-key 6 new-window -t 6
-    bind-key 7 new-window -t 7
-    bind-key 8 new-window -t 8
-    bind-key 9 new-window -t 9
-    bind-key 0 new-window -t 10
+      # New Window with number
+      bind-key 1 new-window -t 1
+      bind-key 2 new-window -t 2
+      bind-key 3 new-window -t 3
+      bind-key 4 new-window -t 4
+      bind-key 5 new-window -t 5
+      bind-key 6 new-window -t 6
+      bind-key 7 new-window -t 7
+      bind-key 8 new-window -t 8
+      bind-key 9 new-window -t 9
+      bind-key 0 new-window -t 10
 
-    # Switch windows alt+number
-    bind-key -n M-1 select-window -t 1
-    bind-key -n M-2 select-window -t 2
-    bind-key -n M-3 select-window -t 3
-    bind-key -n M-4 select-window -t 4
-    bind-key -n M-5 select-window -t 5
-    bind-key -n M-6 select-window -t 6
-    bind-key -n M-7 select-window -t 7
-    bind-key -n M-8 select-window -t 8
-    bind-key -n M-9 select-window -t 9
-    bind-key -n M-0 select-window -t 10
+      # Switch windows alt+number
+      bind-key -n M-1 select-window -t 1
+      bind-key -n M-2 select-window -t 2
+      bind-key -n M-3 select-window -t 3
+      bind-key -n M-4 select-window -t 4
+      bind-key -n M-5 select-window -t 5
+      bind-key -n M-6 select-window -t 6
+      bind-key -n M-7 select-window -t 7
+      bind-key -n M-8 select-window -t 8
+      bind-key -n M-9 select-window -t 9
+      bind-key -n M-0 select-window -t 10
 
-    # Change current pane to next window
-    bind-key ! join-pane -t :1
-    bind-key @ join-pane -t :2
-    bind-key '#' join-pane -t :3
-    bind-key '$' join-pane -t :4
-    bind-key '%' join-pane -t :5
-    bind-key '^' join-pane -t :6
-    bind-key '&' join-pane -t :7
-    bind-key '*' join-pane -t :8
-    bind-key '(' join-pane -t :9
-    bind-key ')' join-pane -t :10
+      # Change current pane to next window
+      bind-key ! join-pane -t :1
+      bind-key @ join-pane -t :2
+      bind-key '#' join-pane -t :3
+      bind-key '$' join-pane -t :4
+      bind-key '%' join-pane -t :5
+      bind-key '^' join-pane -t :6
+      bind-key '&' join-pane -t :7
+      bind-key '*' join-pane -t :8
+      bind-key '(' join-pane -t :9
+      bind-key ')' join-pane -t :10
 
-    # Kill Selected Pane
-    bind-key Q kill-pane
+      # Kill Selected Pane
+      bind-key Q kill-pane
     '';
   };
 
@@ -670,15 +1011,15 @@ in
   services.openssh.enable = true;
 
   systemd.user.services.ggdrive = {
-      enable = true;
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network-online.target" ];
-      description = "rclone: Remote FUSE filesystem for cloud storage config %i";
-      serviceConfig = {
-        Type = "notify";
-        ExecStart = ''${pkgs.rclone}/bin/rclone mount --config=%h/.config/rclone/rclone.conf --cache-dir=%h/mnt/cache-ggdrive --log-file=/tmp/rclone-ggdrive.log --poll-interval 15s --allow-other --dir-cache-time 1000h --log-level INFO --vfs-cache-mode full --vfs-cache-max-size 100G --vfs-cache-max-age 120h --bwlimit-file 16M ggdrive: %h/mnt/ggdrive'';
-        ExecStop = ''/run/wrappers/bin/fusermount -u %h/mnt/ggdrive'';   
-      };
+    enable = true;
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    description = "rclone: Remote FUSE filesystem for cloud storage config %i";
+    serviceConfig = {
+      Type = "notify";
+      ExecStart = ''${pkgs.rclone}/bin/rclone mount --config=%h/.config/rclone/rclone.conf --cache-dir=%h/mnt/cache-ggdrive --log-file=/tmp/rclone-ggdrive.log --poll-interval 15s --allow-other --dir-cache-time 1000h --log-level INFO --vfs-cache-mode full --vfs-cache-max-size 100G --vfs-cache-max-age 120h --bwlimit-file 16M ggdrive: %h/mnt/ggdrive'';
+      ExecStop = ''/run/wrappers/bin/fusermount -u %h/mnt/ggdrive'';
+    };
   };
 
   # Open ports in the firewall.
