@@ -607,7 +607,7 @@ in
                         elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
                             return cwd .. '/.venv/bin/python'
                         else
-                            return '/usr/bin/python'
+                            return 'python'
                         end
                     end,
                 },
@@ -631,7 +631,7 @@ in
                         elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
                             return cwd .. '/.venv/bin/python'
                         else
-                            return '/usr/bin/python'
+                            return 'python'
                         end
                     end,
                     args = { '--debug' },
@@ -656,7 +656,7 @@ in
                         elseif vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
                             return cwd .. '/.venv/bin/python'
                         else
-                            return '/usr/bin/python'
+                            return 'python'
                         end
                     end,
                     args = function()
