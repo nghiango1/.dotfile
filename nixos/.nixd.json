@@ -1,0 +1,23 @@
+{
+  "eval": {
+    "target": {
+      "args": [
+        "--expr",
+        "with import <nixpkgs> { }; callPackage ./configuration.nix { } "
+      ],
+      "installable": ""
+    },
+    "depth": 0,
+    "workers": 3
+  },
+  "formatting": {
+    "command": "nixpkgs-fmt"
+  },
+  "options": {
+    "enable": true,
+    "target": {
+      "args": [],
+      "installable": "<flakeref>#nixosConfigurations.<name>.options"
+    }
+  }
+}

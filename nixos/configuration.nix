@@ -1,6 +1,12 @@
 { config, pkgs, ... }:
 let
   home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-23.11.tar.gz";
+  system = builtins.currentSystem;
+  extensions =
+    (import (builtins.fetchGit {
+      url = "https://github.com/nix-community/nix-vscode-extensions";
+      ref = "refs/heads/master";
+    })).extensions.${system};
 in
 {
   # Include the results of the hardware scan.
@@ -108,6 +114,13 @@ in
       vimAlias = true;
 
       plugins = with pkgs.vimPlugins; [
+        {
+          plugin = mason-nvim;
+          type = "lua";
+          config = ''
+          require("mason").setup()
+          '';
+        }
         vim-sleuth
         vim-fugitive
         vim-rhubarb
@@ -489,7 +502,58 @@ in
         }
 
         nvim-jdtls
-        nvim-dap-ui
+
+        {
+          plugin = nvim-dap-ui;
+          type = "lua";
+          config = ''
+            local dap, dapui = require("dap"), require("dapui")
+
+            local function watchExpression(expression)
+                dapui.elements.watches.add(expression)
+            end
+
+            local addSelectedTextToWatch = function()
+                watchExpression(extension.getVisualSelection())
+            end
+
+            vim.api.nvim_create_user_command('DapUIAddWatch', addSelectedTextToWatch, {})
+            vim.api.nvim_create_user_command('DapUIToggleUI', dapui.toggle, {})
+
+            vim.cmd [[nnoremenu Debug.Add\ Breakpoint   <Cmd>DapToggleBreakpoint<CR>]]
+            vim.cmd [[nnoremenu Debug.Show\ UI          <Cmd>DapUIToggleUI<CR>]]
+            vim.cmd [[vnoremenu Debug.Evaluation        <Cmd>lua require("dapui").eval()<CR>]]
+            vim.cmd [[vnoremenu Debug.Watch             <Cmd>DapUIAddWatch<CR>]]
+
+
+            local function openHover()
+                dapui.float_element('hover')
+            end
+            local function openConsole()
+                dapui.float_element('console', { h = 12, w = 12, enter = true })
+            end
+
+            vim.keymap.set("n", "<leader>duc", openConsole)
+            vim.keymap.set("n", "<leader>K", openHover)
+            vim.keymap.set("n", "<leader>dui", dapui.toggle)
+            vim.keymap.set("n", "<leader>dp", "<Cmd>popup Debug<CR>")
+
+            dap.listeners.after.event_initialized["dapui_config"] = function()
+                vim.cmd [[set mouse=a]]
+                vim.keymap.set({ "n", "x", "v" }, "<RightMouse>", "<Cmd>popup Debug<CR>")
+            end
+
+            dap.listeners.before.event_terminated["dapui_config"] = function()
+                vim.cmd [[set mouse=]]
+                vim.keymap.set({ "n", "x", "v" }, "<RightMouse>", "<Cmd>popup PopUp<CR>")
+            end
+
+            dap.listeners.before.event_exited["dapui_config"] = function()
+                vim.cmd [[set mouse=]]
+                vim.keymap.set({ "n", "x", "v" }, "<RightMouse>", "<Cmd>popup PopUp<CR>")
+            end
+          '';
+        }
         nvim-dap-go
         {
           plugin = nvim-dap;
@@ -727,6 +791,57 @@ in
                     stopOnEntry = false,
                 },
             }
+
+            -- DAP Javascript
+            local dap = require("dap")
+
+            dap.adapters["pwa-node"] = {
+                type = "server",
+                host = "localhost",
+                port = "''${port}",
+                executable = {
+                    -- command = "node",
+                    -- -- 💀 Make sure to update this path to point to your installation
+                    -- args = { "/path/to/js-debug/src/dapDebugServer.js", "''${port}" },
+                    command = "js-debug-adapter",
+                    args = { "''${port}" },
+                },
+            }
+
+            local js_languages = { "typescript", "javascript", "typescript" }
+            for _, language in ipairs(js_languages) do
+                dap.configurations[language] = {
+                    {
+                        type = "pwa-node",
+                        request = "launch",
+                        name = "Launch file",
+                        console = "integratedTerminal",
+                        program = "''${file}",
+                        cwd = "''${workspaceFolder}",
+                    },
+                    {
+                        type = "pwa-node",
+                        request = "attach",
+                        name = "Attach launch --inspect node",
+                        console = "integratedTerminal",
+                        processId = require("dap.utils").pick_process,
+                        cwd = "''${workspaceFolder}",
+                    },
+                    {
+                        type = "pwa-node",
+                        request = "launch",
+                        name = "Launch Test Program (pwa-node with vitest)",
+                        cwd = "''${workspaceFolder}",
+                        program = "''${workspaceFolder}/node_modules/vitest/vitest.mjs",
+                        args = { "--threads", "false", },
+                        autoAttachChildProcesses = false,
+                        trace = true,
+                        console = "integratedTerminal",
+                        sourceMaps = true,
+                        smartStep = true,
+                    },
+                }
+            end
           '';
         }
 
@@ -855,7 +970,21 @@ in
     jdt-language-server
     clang-tools
     gdb
-    vscode-extensions.ms-vscode.cpptools
+    
+    (vscode-with-extensions.override {
+      vscodeExtensions = with vscode-extensions; [
+        ms-vscode.cpptools
+        extensions.vscode-marketplace.ms-vscode.js-debug-nightly
+      ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+        {
+          name = "remote-ssh-edit";
+          publisher = "ms-vscode-remote";
+          version = "0.47.2";
+          sha256 = "1hp6gjh4xp2m1xlm1jsdzxw9d8frkiidhph6nvl24d0h8z34w49g";
+        }
+      ];
+    })
+
     bear
     gnumake
     xclip
