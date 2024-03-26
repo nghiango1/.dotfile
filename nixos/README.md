@@ -53,13 +53,15 @@ After that, we can just install packages with:
 Here is a example with multiple way to install a vscode extension
 ```nix
 environment.systemPackages = with pkgs; [
-  # Provided package
-  ms-vscode.cpptools
-  # Community repo import packages
-  extensions.vscode-marketplace.ms-vscode.js-debug-nightly
+  # Outsite vscode-with-extensions
+  vscode-extensions.ms-vscode.cpptools
   # Install from raw infomation of extension by using vscode-with-extensions
   (vscode-with-extensions.override {
     vscodeExtensions = with vscode-extensions; [
+      # Provided package
+        ms-vscode.cpptools
+        # Community repo import packages
+        extensions.vscode-marketplace.ms-vscode.js-debug-nightly
     ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
       {
         name = "remote-ssh-edit";

@@ -1,12 +1,6 @@
 { config, pkgs, ... }:
 let
   home-manager = builtins.fetchTarball "https://github.com/nix-community/home-manager/archive/release-23.11.tar.gz";
-  system = builtins.currentSystem;
-  extensions =
-    (import (builtins.fetchGit {
-      url = "https://github.com/nix-community/nix-vscode-extensions";
-      ref = "refs/heads/master";
-    })).extensions.${system};
 in
 {
   # Include the results of the hardware scan.
@@ -114,11 +108,22 @@ in
       vimAlias = true;
 
       plugins = with pkgs.vimPlugins; [
+        mason-tool-installer-nvim
         {
           plugin = mason-nvim;
           type = "lua";
           config = ''
-          require("mason").setup()
+            require("mason").setup()
+            require('mason-tool-installer').setup {
+            ensure_installed = {
+              'js-debug-adapter',
+              'debugpy',
+            },
+            auto_update = false,
+            run_on_start = true,
+            start_delay = 0,
+            debounce_hours = nil,
+          }
           '';
         }
         vim-sleuth
@@ -685,7 +690,7 @@ in
 
                     -- Options below are for debugpy, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings for supported options
                     program = "''${file}", -- This configuration will launch the current file if used.
-                    pythonPath = function()
+                    pdythonPath = function()
                         -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
                         -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
                         -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
@@ -963,6 +968,7 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    python311
     python311Packages.debugpy
     nixpkgs-fmt
     nixd
@@ -970,21 +976,7 @@ in
     jdt-language-server
     clang-tools
     gdb
-    
-    (vscode-with-extensions.override {
-      vscodeExtensions = with vscode-extensions; [
-        ms-vscode.cpptools
-        extensions.vscode-marketplace.ms-vscode.js-debug-nightly
-      ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-        {
-          name = "remote-ssh-edit";
-          publisher = "ms-vscode-remote";
-          version = "0.47.2";
-          sha256 = "1hp6gjh4xp2m1xlm1jsdzxw9d8frkiidhph6nvl24d0h8z34w49g";
-        }
-      ];
-    })
-
+    vscode-extensions.ms-vscode.cpptools
     bear
     gnumake
     xclip
@@ -992,9 +984,9 @@ in
     unzip
     go
     gotools
+    delve
     gcc
     nodejs
-    python3
     wget
     keepassxc
     rclone
