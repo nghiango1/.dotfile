@@ -1491,13 +1491,17 @@ in
 
   systemd.user.services.ggdrive = {
     enable = true;
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = [ "network-online.target" ];
     after = [ "network-online.target" ];
     description = "rclone: Remote FUSE filesystem for cloud storage config";
     serviceConfig = {
       Type = "notify";
-      ExecStart = ''${pkgs.rclone}/bin/rclone mount --config=%h/.config/rclone/rclone.conf --cache-dir=%h/mnt/cache-ggdrive --log-file=/tmp/rclone-ggdrive.log --poll-interval 15s --allow-other --dir-cache-time 1000h --log-level INFO --vfs-cache-mode full --vfs-cache-max-size 100G --vfs-cache-max-age 120h --bwlimit-file 16M ggdrive: %h/mnt/ggdrive --daemon'';
-      ExecStop = ''/run/wrappers/bin/fusermount -u %h/mnt/ggdrive'';
+      ExecStartPre = "/run/current-system/sw/bin/mkdir -p %h/mnt/ggdrive"; # Creates folder if didn't exist
+      ExecStart = "${pkgs.rclone}/bin/rclone mount --cache-dir=%h/mnt/cache-ggdrive --poll-interval 15s --allow-other --dir-cache-time 1000h --vfs-cache-mode full --vfs-cache-max-size 100G --vfs-cache-max-age 120h --bwlimit-file 16M ggdrive: %h/mnt/ggdrive";
+      ExecStop = "/run/current-system/sw/bin/fusermount -u %h/mnt/ggdrive"; # Dismounts
+      Restart = "on-failure";
+      RestartSec = "10s";
+      Environment = [ "PATH=/run/wrappers/bin/:$PATH" ]; # Required environments
     };
   };
 
