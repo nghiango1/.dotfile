@@ -1456,7 +1456,7 @@ in
         defaultBranch = "main";
       };
       user.name = "nghiango1";
-      user.email = "ducnghia.tin47@gmaill.com";
+      user.email = "ducnghia.tin47@gmail.com";
     };
   };
 
