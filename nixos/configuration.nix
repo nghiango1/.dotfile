@@ -108,14 +108,18 @@ in
       vimAlias = true;
 
       plugins = with pkgs.vimPlugins; [
+        vim-sleuth
+        vim-fugitive
+        vim-rhubarb
+
         mason-tool-installer-nvim
         {
           plugin = mason-nvim;
           type = "lua";
           config = ''
-              require("mason").setup()
-              require('mason-tool-installer').setup {
-              ensure_installed = {
+            require("mason").setup()
+            require('mason-tool-installer').setup {
+            ensure_installed = {
                 'js-debug-adapter',
                 'debugpy',
               },
@@ -126,9 +130,32 @@ in
             }
           '';
         }
-        vim-sleuth
-        vim-fugitive
-        vim-rhubarb
+
+        {
+          plugin = neodev-nvim;
+          type = "lua";
+          config = ''
+            -- IMPORTANT: make sure to setup neodev BEFORE lspconfig
+            -- You can override the default detection using the override function
+            -- EXAMPLE: If you want a certain directory to be configured differently, you can override its settings
+            require("neodev").setup({
+            })
+
+            -- then setup your lsp server as usual
+            local lspconfig = require('lspconfig')
+
+            -- example to setup lua_ls and enable call snippets
+            lspconfig.lua_ls.setup({
+              settings = {
+                Lua = {
+                  completion = {
+                    callSnippet = "Replace"
+                  }
+                }
+              }
+            })
+          '';
+        }
 
         {
           plugin = nvim-lspconfig;
@@ -137,37 +164,6 @@ in
             local lspconfig = require('lspconfig')
             lspconfig.clangd.setup {}
             lspconfig.nixd.setup {}
-            lspconfig.lua_ls.setup {
-              on_init = function(client)
-                local path = client.workspace_folders[1].name
-                if vim.loop.fs_stat(path .. '/.luarc.json') or vim.loop.fs_stat(path .. '/.luarc.jsonc') then
-                  return
-                end
-
-                client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
-                  runtime = {
-                    -- Tell the language server which version of Lua you're using
-                    -- (most likely LuaJIT in the case of Neovim)
-                    version = 'LuaJIT'
-                  },
-                  -- Make the server aware of Neovim runtime files
-                  workspace = {
-                    checkThirdParty = false,
-                    library = {
-                      vim.env.VIMRUNTIME
-                    }
-                    -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
-                    -- library = vim.api.nvim_get_runtime_file("", true)
-                  }
-                })
-              end,
-              settings = {
-                Lua = {
-                  workspace = { checkThirdParty = false },
-                  telemetry = { enable = false },
-                },
-              }
-            }
             vim.diagnostic.config({
               virtual_text = true
             })
@@ -202,6 +198,7 @@ in
             })
           '';
         }
+
         fidget-nvim
 
         {
