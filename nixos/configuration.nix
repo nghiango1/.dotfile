@@ -101,6 +101,13 @@ in
       userEmail = "ducnghia.tin47@gmail.com";
     };
 
+
+    nixpkgs.overlays = [
+      (import (builtins.fetchTarball {
+        url = https://github.com/nix-community/neovim-nightly-overlay/archive/master.tar.gz;
+      }))
+    ];
+
     programs.neovim = {
       enable = true;
 
@@ -162,6 +169,7 @@ in
           type = "lua";
           config = ''
             local lspconfig = require('lspconfig')
+            lspconfig.gopls.setup {}
             lspconfig.clangd.setup {}
             lspconfig.nixd.setup {}
             vim.diagnostic.config({
@@ -193,6 +201,9 @@ in
                 vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
                 vim.keymap.set('n', '<space>f', function()
                     vim.lsp.buf.format { async = true }
+                end, opts)
+                vim.keymap.set('n', '<space>a', function()
+                  vim.lsp.inlay_hint.enable(0, not vim.lsp.inlay_hint.is_enabled())
                 end, opts)
               end,
             })
@@ -1165,6 +1176,27 @@ in
         }
 
         cmp-look
+
+        {
+          plugin = neogen;
+          type = "lua";
+          config = ''
+            require('neogen').setup {
+              enabled = true,
+              input_after_comment = true,
+            }
+
+            vim.api.nvim_set_keymap("n", "<leader>cc", ":lua require('neogen').generate()<CR>", { noremap = true, silent = true, desc = "Generate [c]omment do[c]" })
+          '';
+        }
+
+        {
+          plugin = undotree;
+          type = "lua";
+          config = ''
+            vim.api.nvim_set_keymap("n", "<leader>u", ":UndotreeToggle<CR>", { noremap = true, silent = true, desc = "Toggle [U]ndotree"})
+          '';
+        }
       ];
 
       extraLuaConfig = ''
@@ -1192,9 +1224,10 @@ in
         vim.opt.updatetime = 50
         vim.opt.colorcolumn = "80"
         vim.cmd [[set listchars=tab:\ >\ ]]
-        vim.o.completeopt = 'menuone,noselect'
-        vim.o.termguicolors = true
-        vim.o.smartcase = true
+        vim.opt.completeopt = 'menuone,noselect'
+        vim.opt.termguicolors = true
+        vim.opt.ignorecase = true
+        vim.opt.smartcase = true
 
         vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
         vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -1287,6 +1320,7 @@ in
     unzip
     go
     gotools
+    gopls
     delve
     gcc
     nodejs
@@ -1349,6 +1383,7 @@ in
   };
 
   environment.shellAliases = {
+    qcd = "cd $(find ~/workspace/ -mindepth 1 -maxdepth 1 -type d -o -type l -xtype d | fzf)";
     sudovi = "sudo -E -s nvim";
     # Hack for sudo alias to work, check https://askubuntu.com/questions/22037/aliases-not-available-when-using-sudo
     sudo = "sudo ";
@@ -1383,7 +1418,7 @@ in
       bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel 'xclip -in -selection clipboard'
 
       # Fzf any session
-      bind-key -r f run-shell "tmux neww tmuxhelper.sh"
+      bind-key -r f run-shell "tmux neww th"
 
       # Copy mode
       bind-key [ copy-mode
@@ -1461,7 +1496,7 @@ in
 
   # Neovim setup
   programs.neovim = {
-    enable = true;
+    # enable = true;
 
     defaultEditor = true;
     viAlias = true;
