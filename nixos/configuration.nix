@@ -662,6 +662,11 @@ in
               vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
               vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
               vim.keymap.set("i", "<C-j>", function() vim.lsp.buf.signature_help() end, opts)
+
+              -- Somehow, lsp detect shiftwidth = 8, this make sure it not breaking
+              vim.opt.tabstop = 4
+              vim.opt.softtabstop = 4
+              vim.opt.shiftwidth = 4
             end
 
             local function jdtls_setup(event)
@@ -1396,6 +1401,10 @@ in
   programs.nix-ld.enable = true;
   # It already come with default library, so these just not needed, unless we need more
   # programs.nix-ld.libraries = with pkgs; [ alsa-lib at-spi2-atk at-spi2-core atk cairo cups curl dbus expat fontconfig freetype fuse3 gdk-pixbuf glib gtk3 icu libGL libappindicator-gtk3 libdrm libglvnd libnotify libpulseaudio libunwind libusb1 libuuid libxkbcommon libxml2 mesa nspr nss openssl pango pipewire stdenv.cc.cc systemd vulkan-loader xorg.libX11 xorg.libXScrnSaver xorg.libXcomposite xorg.libXcursor xorg.libXdamage xorg.libXext xorg.libXfixes xorg.libXi xorg.libXrandr xorg.libXrender xorg.libXtst xorg.libxcb xorg.libxkbfile xorg.libxshmfence zlib ];
+
+  programs.steam = {
+    enable = true;
+  };
 
   programs.tmux = {
     enable = true;
