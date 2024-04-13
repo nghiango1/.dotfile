@@ -1235,6 +1235,8 @@ in
         vim.opt.smartcase = true
 
         vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+        vim.keymap.set({ 'n', 'v', 'i' }, '<F1>', '<Nop>', { silent = true })
+        vim.keymap.set({ 'n', 'v', 'i' }, '<F4>', ':set wrap lbr<CR>', { silent = true })
         vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
         vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
         -- Maybe i'm wrong, this work like >> but in insert mode
