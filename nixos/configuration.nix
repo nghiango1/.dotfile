@@ -104,7 +104,7 @@ in
 
     nixpkgs.overlays = [
       (import (builtins.fetchTarball {
-        url = https://github.com/nix-community/neovim-nightly-overlay/archive/master.tar.gz;
+        url = https://github.com/nix-community/neovim-nightly-overlay/archive/f7b28f01c5f7e5e35fbc4e9a64faf95b8211744b.zip;
       }))
     ];
 
@@ -1306,6 +1306,8 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    google-chrome
+    mosh
     lombok
     python311
     python311Packages.debugpy
@@ -1338,6 +1340,13 @@ in
     gnomeExtensions.topicons-plus
     gnomeExtensions.appindicator
   ];
+
+  services.zerotierone = {
+    enable = true;
+    joinNetworks = [
+      "1c33c1ced0539487"
+    ];
+  };
 
   services.gnome.gnome-browser-connector.enable = true;
   services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
@@ -1545,6 +1554,8 @@ in
       Environment = [ "PATH=/run/wrappers/bin/:$PATH" ]; # Required environments
     };
   };
+
+  nix.settings.max-jobs = 1;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
