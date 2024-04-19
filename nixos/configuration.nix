@@ -90,6 +90,10 @@ in
       firefox
       #  thunderbird
     ];
+
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHi54TgwZAgUakdY2QU2gdz9oQM9NSALmzlcxJiWaxwH u0@localhost"
+    ];
   };
 
   home-manager.users.ylong = {
@@ -1539,7 +1543,12 @@ in
 
   # List services that you want to enable:
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+    };
+  };
 
   systemd.user.services.ggdrive = {
     enable = true;
