@@ -175,6 +175,8 @@ in
             local lspconfig = require('lspconfig')
             lspconfig.gopls.setup {}
             lspconfig.clangd.setup {}
+            lspconfig.pyright.setup {}
+            lspconfig.ruff_lsp.setup {}
             lspconfig.nixd.setup {}
             vim.diagnostic.config({
               virtual_text = true
@@ -1312,11 +1314,24 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    # winetricks (all versions)
+    winetricks
+
+    # native wayland support (unstable)
+    wineWowPackages.waylandFull
+
+    via
+    telegram-desktop
     google-chrome
     mosh
     lombok
+
     python311
     python311Packages.debugpy
+    python311Packages.mypy
+    ruff-lsp
+    nodePackages.pyright
+
     nixpkgs-fmt
     nixd
     lua-language-server
@@ -1505,6 +1520,8 @@ in
     '';
   };
 
+  services.udev.packages = [ pkgs.via ];
+
   programs.git = {
     enable = true;
     config = {
@@ -1550,9 +1567,25 @@ in
     };
   };
 
+  systemd.user.services.onedrive = {
+    enable = true;
+    wantedBy = [ "default.target" ];
+    after = [ "network-online.target" ];
+    description = "rclone: Remote FUSE filesystem for cloud storage config";
+    serviceConfig = {
+      Type = "notify";
+      ExecStartPre = "/run/current-system/sw/bin/mkdir -p %h/mnt/onedrive"; # Creates folder if didn't exist
+      ExecStart = "${pkgs.rclone}/bin/rclone mount --cache-dir=%h/mnt/cache-onedrive --poll-interval 15s --allow-other --dir-cache-time 1000h --vfs-cache-mode full --vfs-cache-max-size 100G --vfs-cache-max-age 120h --bwlimit-file 16M onedrive: %h/mnt/onedrive";
+      ExecStop = "/run/current-system/sw/bin/fusermount -u %h/mnt/onedrive"; # Dismounts
+      Restart = "on-failure";
+      RestartSec = "10s";
+      Environment = [ "PATH=/run/wrappers/bin/:$PATH" ]; # Required environments
+    };
+  };
+
   systemd.user.services.ggdrive = {
     enable = true;
-    wantedBy = [ "network-online.target" ];
+    wantedBy = [ "default.target" ];
     after = [ "network-online.target" ];
     description = "rclone: Remote FUSE filesystem for cloud storage config";
     serviceConfig = {
