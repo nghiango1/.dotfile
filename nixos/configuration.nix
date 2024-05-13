@@ -1321,6 +1321,9 @@ in
     wineWowPackages.waylandFull
 
     via
+    qmk
+    kitty
+    dnsutils
     telegram-desktop
     google-chrome
     mosh
