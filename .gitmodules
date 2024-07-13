@@ -1,3 +1,0 @@
-[submodule "linux/home/.config/nvim"]
-	path = linux/home/.config/nvim
-	url = git@github.com:nghiango1/nvim.git

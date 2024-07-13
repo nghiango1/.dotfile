@@ -68,8 +68,12 @@ bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 workspace_layout tabbed
 
 # window/ubuntu/i3 share single keybind use
-bindsym $mod+Shift+Tab focus right
-bindsym $mod+Tab focus left
+# Alt tab
+bindsym Mod1+Shift+Tab focus right
+bindsym Mod1+Tab focus left
+# Win tab
+bindsym Mod4+Shift+Tab focus right
+bindsym Mod4+Tab focus left
 # change focus
 bindsym $mod+h focus left
 bindsym $mod+j focus down
@@ -189,7 +193,8 @@ mode "resize" {
         bindsym $mod+r mode "default"
 }
 
-bindsym $mod+r mode "resize"
+# Who need resize, i just use full window alway
+# bindsym $mod+r mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
