@@ -189,6 +189,7 @@
             lspconfig.pyright.setup {}
             lspconfig.ruff.setup {}
             lspconfig.nixd.setup {}
+            lspconfig.marksman.setup {}
             vim.diagnostic.config({
               virtual_text = true
             })
@@ -223,6 +224,21 @@
                   vim.lsp.inlay_hint.enable(0, not vim.lsp.inlay_hint.is_enabled())
                 end, opts)
               end,
+            })
+          '';
+        }
+
+        {
+          plugin = none-ls-nvim;
+          type = "lua";
+          config = ''
+            local null_ls = require("null-ls")
+
+            null_ls.setup({
+                sources = {
+                  null_ls.builtins.diagnostics.mdl,
+                  null_ls.builtins.formatting.prettier
+                },
             })
           '';
         }
@@ -1362,7 +1378,9 @@
         vim.keymap.set("n", "<leader>vpp", "<cmd>e ~/.config/nvim/init.lua<CR>");
         vim.keymap.set("n", "<leader>vpo", "<cmd>e ~/.config/nvim/lua/ylsama/telex.lua<CR>");
       '';
+
     };
+
   };
 
   # Install firefox.
@@ -1425,14 +1443,39 @@
     gnomeExtensions.appindicator
     obsidian
     obsidian-export
+    marksman
+    mdl
+    nodePackages.prettier
+
+    vscode
+    (vscode-with-extensions.override {
+      vscodeExtensions = with vscode-extensions; [
+        bbenoist.nix
+        ms-python.python
+        ms-azuretools.vscode-docker
+        ms-vscode-remote.remote-ssh
+      ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+        {
+          name = "remote-ssh-edit";
+          publisher = "ms-vscode-remote";
+          version = "0.47.2";
+          sha256 = "1hp6gjh4xp2m1xlm1jsdzxw9d8frkiidhph6nvl24d0h8z34w49g";
+        }
+      ];
+    })
 
     vim
     neovim
 
-    virt-manager
     ruby_3_2
     sqlite
   ];
+
+  programs.virt-manager.enable = true;
+
+  users.groups.libvirtd.members = ["ylong"];
+  virtualisation.libvirtd.enable = true;
+  virtualisation.spiceUSBRedirection.enable = true;
 
   services.zerotierone = {
     enable = true;
