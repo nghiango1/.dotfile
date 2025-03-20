@@ -109,10 +109,6 @@
     isNormalUser = true;
     description = "ylong";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      firefox
-    #  thunderbird
-    ];
   };
 
   home-manager.users.ylong = {
@@ -185,11 +181,13 @@
           config = ''
             local lspconfig = require('lspconfig')
             lspconfig.gopls.setup {}
+            lspconfig.templ.setup {}
             lspconfig.clangd.setup {}
             lspconfig.pyright.setup {}
             lspconfig.ruff.setup {}
             lspconfig.nixd.setup {}
             lspconfig.marksman.setup {}
+            lspconfig.texlab.setup {}
             vim.diagnostic.config({
               virtual_text = true
             })
@@ -1384,7 +1382,10 @@
   };
 
   # Install firefox.
-  programs.firefox.enable = true;
+  programs.firefox = {
+    enable = true;
+    package = pkgs.librewolf;
+  };
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -1392,6 +1393,8 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    # Nixos Cache community
+    cachix
     # winetricks (all versions)
     winetricks
 
@@ -1413,7 +1416,7 @@
     ruff
     pyright
 
-    nixpkgs-fmt
+    nixfmt-rfc-style
     nixd
     lua-language-server
     jdt-language-server
@@ -1430,6 +1433,7 @@
     go
     gotools
     gopls
+    templ
     delve
     gcc
     nodejs
@@ -1446,6 +1450,7 @@
     marksman
     mdl
     nodePackages.prettier
+    texlab
 
     vscode
     (vscode-with-extensions.override {
@@ -1469,6 +1474,7 @@
 
     ruby_3_2
     sqlite
+    tree
   ];
 
   programs.virt-manager.enable = true;
@@ -1647,9 +1653,11 @@
   };
 
   services.udev.packages = [ pkgs.via ];
+  services.logind.lidSwitch = "ignore";
 
   programs.git = {
     enable = true;
+    lfs.enable = true;
     config = {
       init = {
         defaultBranch = "main";
@@ -1838,7 +1846,15 @@
     };
   };
 
-  nix.settings.max-jobs = 1;
+  nix.settings = {
+    substituters = [
+      "https://nix-community.cachix.org"
+    ];
+    trusted-public-keys = [
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
+    max-jobs = 1;
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
