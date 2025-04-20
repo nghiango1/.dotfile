@@ -1805,6 +1805,17 @@
 
   # List services that you want to enable:
 
+  # DB with postgresql
+  services.postgresql = {
+    enable = true;
+    ensureDatabases = [ "localdb" ];
+    authentication = pkgs.lib.mkOverride 10 ''
+      #type database  DBuser  auth-method
+      local all       all     trust
+    '';
+  };
+
+
   # Enable the OpenSSH daemon.
   # services.openssh.enable = true;
   services.openssh = {
