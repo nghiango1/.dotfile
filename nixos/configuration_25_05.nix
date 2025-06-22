@@ -187,6 +187,8 @@
             lspconfig.ruff.setup {}
             lspconfig.nixd.setup {}
             lspconfig.marksman.setup {}
+            lspconfig.postgres_lsp.setup {}
+            lspconfig.texlab.setup {}
             lspconfig.texlab.setup {}
             vim.diagnostic.config({
               virtual_text = true
@@ -1279,6 +1281,28 @@
             vim.api.nvim_set_keymap("n", "<leader>u", ":UndotreeToggle<CR>", { noremap = true, silent = true, desc = "Toggle [U]ndotree"})
           '';
         }
+
+        {
+          plugin = copilot-lua;
+          type = "lua";
+          config = ''
+            require("copilot").setup({
+              filetypes = {
+                python = true, -- allow specific filetype
+                ["*"] = false, -- disable for all other filetypes and ignore default `filetypes`
+              },
+            })
+            local cmp = require('cmp')
+            cmp.event:on("menu_opened", function()
+              vim.b.copilot_suggestion_hidden = true
+            end)
+
+            cmp.event:on("menu_closed", function()
+              vim.b.copilot_suggestion_hidden = false
+            end)
+          '';
+        }
+
       ];
 
       extraLuaConfig = ''
@@ -1393,6 +1417,11 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    # AI assistance?
+    copilot-language-server
+
+    teamviewer
+
     # Nixos Cache community
     cachix
     # winetricks (all versions)
@@ -1471,6 +1500,7 @@
 
     vim
     neovim
+    postgres-lsp
 
     ruby_3_2
     sqlite
@@ -1524,9 +1554,10 @@
     };
   };
 
+
   fonts = {
-    packages = with pkgs; [
-      (nerdfonts.override { fonts = [ "Ubuntu" ]; })
+    packages = [
+      pkgs.nerd-fonts.ubuntu
     ];
 
     fontconfig = {
@@ -1623,6 +1654,9 @@
       bind-key 9 new-window -t 9
       bind-key 0 new-window -t 10
 
+      # or just create new one with ;
+      bind-key -n M-\; new-window
+
       # Switch windows alt+number
       bind-key -n M-1 select-window -t 1
       bind-key -n M-2 select-window -t 2
@@ -1634,6 +1668,10 @@
       bind-key -n M-8 select-window -t 8
       bind-key -n M-9 select-window -t 9
       bind-key -n M-0 select-window -t 10
+
+      # or left right
+      bind-key -n M-Left select-window -p
+      bind-key -n M-Right select-window -n
 
       # Change current pane to next window
       bind-key ! join-pane -t :1
@@ -1824,6 +1862,8 @@
       PasswordAuthentication = false;
     };
   };
+
+  services.teamviewer.enable = true;
 
   systemd.user.services.onedrive = {
     enable = true;
