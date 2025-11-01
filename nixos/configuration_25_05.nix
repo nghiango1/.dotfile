@@ -108,7 +108,7 @@
   users.users.ylong = {
     isNormalUser = true;
     description = "ylong";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" ];
   };
 
   home-manager.users.ylong = {
@@ -183,7 +183,25 @@
             lspconfig.gopls.setup {}
             lspconfig.templ.setup {}
             lspconfig.clangd.setup {}
-            lspconfig.pyright.setup {}
+            lspconfig.pyright.setup {
+              settings = {
+                pyright = {
+                  disableLanguageServices = true
+                }
+              }
+            }
+            lspconfig.pylsp.setup {
+              settings = {
+                pylsp = {
+                  plugins = {
+                    pycodestyle = {
+                      ignore = {'W391'},
+                      maxLineLength = 100
+                    }
+                  }
+                }
+              }
+            }
             lspconfig.ruff.setup {}
             lspconfig.nixd.setup {}
             lspconfig.marksman.setup {}
@@ -1417,6 +1435,14 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    # yes
+    qtscrcpy
+    htop
+    android-tools
+    scrcpy
+    gimp3
+
+
     # AI assistance?
     copilot-language-server
 
@@ -1442,6 +1468,7 @@
     python311
     python311Packages.debugpy
     python311Packages.mypy
+    python311Packages.python-lsp-server
     ruff
     pyright
 
@@ -1897,6 +1924,10 @@
     };
   };
 
+  virtualisation.docker.enable = true;
+  virtualisation.waydroid.enable = true;
+
+
   nix.settings = {
     substituters = [
       "https://nix-community.cachix.org"
@@ -1908,10 +1939,51 @@
   };
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  networking.firewall.allowedTCPPorts = [ 22 5000 8000 ];
+  networking.firewall = {
+    allowedUDPPorts = [ 51820 ];
+    allowedUDPPortRanges = [
+      { from = 60000; to = 61000; }
+    ];
+  };
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
+
+  # Enable WireGuard
+  networking.wireguard.interfaces = let
+    publicKey = "jzfCGlE52WKmDKLlpF92L+jKQVHOAYwmYpt2ToJTSkg=";
+  in {
+    # "wg0" is the network interface name. You can name the interface arbitrarily.
+    wg0 = {
+      # Determines the IP address and subnet of the client's end of the tunnel interface.
+      ips = [ "10.7.0.6/24" ];
+      listenPort = 51820;
+
+      # Path to the private key file.
+      privateKeyFile = "/etc/nixos/wireguard_privatekey.key";
+
+      peers = [
+        {
+          # Public key of the server (not a file path).
+          inherit publicKey;
+
+          presharedKeyFile = "/etc/nixos/wireguard_presharedkeyfile.key";
+
+          # Forward all the traffic via VPN.
+          # allowedIPs = [ "0.0.0.0/0" ];
+          # Or forward only particular subnets
+          allowedIPs = [ "10.7.0.0/24" ];
+
+          # Set this to the server IP and port.
+          endpoint = "35.209.252.83:51820";
+
+          # Send keepalives every 25 seconds. Important to keep NAT tables alive.
+          persistentKeepalive = 25;
+        }
+      ];
+    };
+  };
+
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
