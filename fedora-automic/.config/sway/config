@@ -231,3 +231,6 @@ bindsym $mod+r mode "resize"
 # include '~/.config/sway/keymaps.conf'
 include '~/.config/sway/fedora-conf/*.conf'
 include '~/.config/sway/touchpad.conf'
+include '~/.config/sway/keymaps.conf'
+include '~/.config/sway/variable.conf'
+include '~/.config/sway/quick-open.conf'
