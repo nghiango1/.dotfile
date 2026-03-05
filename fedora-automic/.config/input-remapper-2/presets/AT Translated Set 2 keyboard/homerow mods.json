@@ -1,0 +1,101 @@
+[
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 31,
+                "origin_hash": "d30fb9a3c87654c9091f7bbae6355818"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "mod_tap(s, Alt_L, 300)",
+        "name": "s",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 32,
+                "origin_hash": "d30fb9a3c87654c9091f7bbae6355818"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "mod_tap(d, Shift_L, 300)",
+        "name": "d",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 33,
+                "origin_hash": "d30fb9a3c87654c9091f7bbae6355818"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "mod_tap(f, Control_L, 300)",
+        "name": "f",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 34,
+                "origin_hash": "d30fb9a3c87654c9091f7bbae6355818"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "mod_tap(g, Super_L, 300)",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 35,
+                "origin_hash": "d30fb9a3c87654c9091f7bbae6355818"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "mod_tap(h, Super_L, 300)",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 36,
+                "origin_hash": "d30fb9a3c87654c9091f7bbae6355818"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "mod_tap(j, Control_L, 300)",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 37,
+                "origin_hash": "d30fb9a3c87654c9091f7bbae6355818"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "mod_tap(k, Shift_L, 300)",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 38,
+                "origin_hash": "d30fb9a3c87654c9091f7bbae6355818"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "mod_tap(l, Alt_L, 300)",
+        "mapping_type": "key_macro"
+    }
+]
