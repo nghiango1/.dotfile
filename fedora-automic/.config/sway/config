@@ -227,4 +227,8 @@ include '~/.config/sway/quick-open.conf'
 
 # Work around - Chrome can't prompt for file
 include '/etc/sway/config.d/*.conf'
-exec systemctl --user import-environment DISPLAY
+
+# Start up
+exec_always systemctl --user import-environment DISPLAY
+# https://desktopi18n.wordpress.com/2025/01/13/ibus-1-5-32-plan/
+exec_always ibus start --type wayland
