@@ -224,3 +224,7 @@ include '~/.config/sway/touchpad.conf'
 include '~/.config/sway/keymaps.conf'
 include '~/.config/sway/variable.conf'
 include '~/.config/sway/quick-open.conf'
+
+# Work around - Chrome can't prompt for file
+include '/etc/sway/config.d/*.conf'
+exec systemctl --user import-environment DISPLAY
