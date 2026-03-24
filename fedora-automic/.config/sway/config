@@ -207,4 +207,4 @@ include '/etc/sway/config.d/*.conf'
 # Start up
 exec_always systemctl --user import-environment DISPLAY
 # https://desktopi18n.wordpress.com/2025/01/13/ibus-1-5-32-plan/
-exec_always ibus start --type wayland
+exec ibus start --type wayland
